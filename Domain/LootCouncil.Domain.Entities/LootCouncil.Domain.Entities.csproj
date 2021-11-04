@@ -8,4 +8,8 @@
       <ProjectReference Include="..\LootCouncil.Domain.Common\LootCouncil.Domain.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.11" />
+    </ItemGroup>
+
 </Project>
