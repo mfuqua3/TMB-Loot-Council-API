@@ -2,6 +2,12 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>LootCouncil.Engine</RootNamespace>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.DataContracts\LootCouncil.Domain.DataContracts.csproj" />
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.Entities\LootCouncil.Domain.Entities.csproj" />
+    </ItemGroup>
 
 </Project>

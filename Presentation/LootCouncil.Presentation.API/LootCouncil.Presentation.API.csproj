@@ -5,4 +5,11 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.Data\LootCouncil.Domain.Data.csproj" />
+      <ProjectReference Include="..\..\Engine\LootCouncil.Engine\LootCouncil.Engine.csproj" />
+      <ProjectReference Include="..\..\Service\LootCouncil.Service\LootCouncil.Service.csproj" />
+      <ProjectReference Include="..\..\Utility\LootCouncil.Utility\LootCouncil.Utility.csproj" />
+    </ItemGroup>
+
 </Project>

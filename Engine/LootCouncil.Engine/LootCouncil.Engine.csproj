@@ -4,4 +4,10 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.Data\LootCouncil.Domain.Data.csproj" />
+      <ProjectReference Include="..\..\Utility\LootCouncil.Utility\LootCouncil.Utility.csproj" />
+      <ProjectReference Include="..\LootCouncil.Engine.Common\LootCouncil.Engine.Common.csproj" />
+    </ItemGroup>
+
 </Project>
