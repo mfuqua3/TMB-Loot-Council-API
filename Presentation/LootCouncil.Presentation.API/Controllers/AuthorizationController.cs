@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LootCouncil.Presentation.API.Controllers
 {
     [AllowAnonymous]
-    public class AccountController : Controller
+    public class AuthorizationController : Controller
     {
         [HttpGet("~/connect/discord")]
         public IActionResult Discord()

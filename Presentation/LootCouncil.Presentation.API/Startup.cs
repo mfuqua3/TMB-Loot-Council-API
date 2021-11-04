@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using AspNet.Security.OAuth.Discord;
 using LootCouncil.Domain.Data;
@@ -56,6 +57,7 @@ namespace LootCouncil.Presentation.API
                     opt.ClientId = _configuration["DiscordAuthentication:ClientId"];
                     opt.ClientSecret = _configuration["DiscordAuthentication:ClientSecret"];
                     opt.SignInScheme = IdentityConstants.ExternalScheme;
+                    opt.Scope.Add("guilds");
                 })
                 .AddExternalCookie();
         }
