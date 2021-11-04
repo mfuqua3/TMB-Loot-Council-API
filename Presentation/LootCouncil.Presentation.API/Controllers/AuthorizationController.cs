@@ -22,13 +22,13 @@ namespace LootCouncil.Presentation.API.Controllers
         {
             var authenticationProperties = new AuthenticationProperties
             {
-                RedirectUri = Url.Action("HandleExternalLogin")
+                RedirectUri = Url.Action("HandleDiscordLogin")
             };
             return Challenge(authenticationProperties, DiscordAuthenticationDefaults.AuthenticationScheme);
         }
 
         [HttpGet("~/signin-external")]
-        public async Task<IActionResult> HandleExternalLogin()
+        public async Task<IActionResult> HandleDiscordLogin()
         {
             var claimsPrincipal = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
             if (!claimsPrincipal.Succeeded)
