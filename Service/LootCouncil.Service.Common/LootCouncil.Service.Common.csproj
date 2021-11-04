@@ -5,4 +5,8 @@
         <RootNamespace>LootCouncil.Service</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.DataContracts\LootCouncil.Domain.DataContracts.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -1,8 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using AspNet.Security.OAuth.Discord;
 using LootCouncil.Domain.Data;
 using LootCouncil.Domain.Entities;
+using LootCouncil.Engine.DependencyInjection;
+using LootCouncil.Service.DependencyInjection;
+using LootCouncil.Utility.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,6 +33,7 @@ namespace LootCouncil.Presentation.API
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtToken"));
             services.Configure<DiscordAuthenticationOptions>(_configuration.GetSection("DiscordAuthentication"));
             services.AddDbContext<LootCouncilDbContext>(cfg =>
             {
@@ -43,13 +49,13 @@ namespace LootCouncil.Presentation.API
                     opt.TokenValidationParameters = new TokenValidationParameters
                     {
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF32.GetBytes(_configuration["JwtBearer:Secret"])),
+                            Encoding.UTF32.GetBytes(_configuration["JwtToken:Secret"])),
                         ValidateAudience = true,
                         ValidateIssuer = true,
                         ValidateLifetime = true,
                         RequireExpirationTime = true,
-                        ValidAudience = _configuration["JwtBearer:Audience"],
-                        ValidIssuer = _configuration["JwtBearer:Authority"]
+                        ValidAudience = _configuration["JwtToken:Audience"],
+                        ValidIssuer = _configuration["JwtToken:Authority"]
                     }
                 )
                 .AddDiscord(opt =>
@@ -60,19 +66,28 @@ namespace LootCouncil.Presentation.API
                     opt.Scope.Add("guilds");
                 })
                 .AddExternalCookie();
+            services.AddAuthorization();
+            services.AddApplicationServices();
+            services.AddApplicationEngines();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LootCouncilDbContext dbContext)
         {
+            dbContext.Database.Migrate();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

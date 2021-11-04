@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using AspNet.Security.OAuth.Discord;
+using LootCouncil.Service.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,12 @@ namespace LootCouncil.Presentation.API.Controllers
     [AllowAnonymous]
     public class AuthorizationController : Controller
     {
+        private readonly IAccountService _accountService;
+
+        public AuthorizationController(IAccountService accountService)
+        {
+            _accountService = accountService;
+        }
         [HttpGet("~/connect/discord")]
         public IActionResult Discord()
         {
@@ -24,7 +31,12 @@ namespace LootCouncil.Presentation.API.Controllers
         public async Task<IActionResult> HandleExternalLogin()
         {
             var claimsPrincipal = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
-            return Ok();
+            if (!claimsPrincipal.Succeeded)
+            {
+                return Unauthorized();
+            }
+            var accessToken = await _accountService.DiscordAuthorize(claimsPrincipal.Principal);
+            return Ok(accessToken);
         }
     }
 }
