@@ -5,6 +5,6 @@ namespace LootCouncil.Engine
 {
     public interface IJwtEngine
     {
-        string GenerateToken(LootCouncilUser user);
+        Task<string> GenerateToken(string userId);
     }
 }

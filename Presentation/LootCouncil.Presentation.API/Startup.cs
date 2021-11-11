@@ -31,13 +31,14 @@ namespace LootCouncil.Presentation.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtToken"));
+            services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtBearer"));
             services.AddDbContext<LootCouncilDbContext>(cfg =>
             {
                 cfg.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
                 cfg.EnableDetailedErrors();
             });
             services.AddIdentityCore<LootCouncilUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<LootCouncilDbContext>()
                 .AddDefaultTokenProviders();
             services.AddControllers();
@@ -46,20 +47,22 @@ namespace LootCouncil.Presentation.API
                     opt.TokenValidationParameters = new TokenValidationParameters
                     {
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF32.GetBytes(_configuration["JwtToken:Secret"])),
+                            Encoding.UTF32.GetBytes(_configuration["JwtBearer:Secret"])),
                         ValidateAudience = true,
                         ValidateIssuer = true,
                         ValidateLifetime = true,
                         RequireExpirationTime = true,
-                        ValidAudience = _configuration["JwtToken:Audience"],
-                        ValidIssuer = _configuration["JwtToken:Authority"]
+                        ValidAudience = _configuration["JwtBearer:Audience"],
+                        ValidIssuer = _configuration["JwtBearer:Authority"]
                     }
                 )
                 .AddDiscord(opt =>
                 {
+                    opt.Scope.Add("guilds");
                     opt.ClientId = _configuration["DiscordAuthentication:ClientId"];
                     opt.ClientSecret = _configuration["DiscordAuthentication:ClientSecret"];
                     opt.SignInScheme = IdentityConstants.ExternalScheme;
+                    opt.SaveTokens = true;
                 })
                 .AddExternalCookie();
             services.AddAuthorization();

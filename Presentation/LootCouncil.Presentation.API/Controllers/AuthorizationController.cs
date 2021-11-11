@@ -35,7 +35,9 @@ namespace LootCouncil.Presentation.API.Controllers
             {
                 return Unauthorized();
             }
-            var accessToken = await _accountService.DiscordAuthorize(claimsPrincipal.Principal);
+
+            var discordAccessToken = claimsPrincipal.Properties.Items[".Token.access_token"];
+            var accessToken = await _accountService.DiscordAuthorize(discordAccessToken);
             return Ok(accessToken);
         }
     }

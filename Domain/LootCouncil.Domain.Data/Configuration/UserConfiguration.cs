@@ -8,10 +8,11 @@ namespace LootCouncil.Domain.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<LootCouncilUser> builder)
         {
-            builder.HasOne(x => x.DiscordIdentity)
+            builder
+                .HasOne(x => x.DiscordIdentity)
                 .WithOne(x => x.User)
-                .HasForeignKey<LootCouncilUser>(x => x.DiscordIdentityId)
-                .IsRequired(false)
+                .HasForeignKey<DiscordIdentity>(x => x.UserId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

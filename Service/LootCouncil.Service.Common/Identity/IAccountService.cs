@@ -6,6 +6,6 @@ namespace LootCouncil.Service.Identity
 {
     public interface IAccountService
     {
-        Task<TokenResponse> DiscordAuthorize(ClaimsPrincipal claims);
+        Task<TokenResponse> DiscordAuthorize(string discordAccessToken);
     }
 }

@@ -10,4 +10,8 @@
       <ProjectReference Include="..\LootCouncil.Service.Common\LootCouncil.Service.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Discord.Net" Version="2.4.0" />
+    </ItemGroup>
+
 </Project>
