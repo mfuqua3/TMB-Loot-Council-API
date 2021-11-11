@@ -6,7 +6,9 @@ using AspNet.Security.OAuth.Discord;
 using LootCouncil.Domain.Data;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Engine.DependencyInjection;
+using LootCouncil.Presentation.API.Middleware;
 using LootCouncil.Service.DependencyInjection;
+using LootCouncil.Service.Mapping;
 using LootCouncil.Utility.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -47,9 +49,9 @@ namespace LootCouncil.Presentation.API
                     opt.TokenValidationParameters = new TokenValidationParameters
                     {
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF32.GetBytes(_configuration["JwtBearer:Secret"])),
-                        ValidateAudience = true,
-                        ValidateIssuer = true,
+                            Convert.FromBase64String(_configuration["JwtBearer:Secret"])),
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
                         ValidateLifetime = true,
                         RequireExpirationTime = true,
                         ValidAudience = _configuration["JwtBearer:Audience"],
@@ -65,6 +67,8 @@ namespace LootCouncil.Presentation.API
                     opt.SaveTokens = true;
                 })
                 .AddExternalCookie();
+            services.AddAutoMapper(cfg => cfg.AddMaps(typeof(GuildProfile).Assembly));
+            services.AddCustomMiddleware();
             services.AddAuthorization();
             services.AddApplicationServices();
             services.AddApplicationEngines();
@@ -73,11 +77,7 @@ namespace LootCouncil.Presentation.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LootCouncilDbContext dbContext)
         {
             dbContext.Database.Migrate();
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
+            app.UseExceptionHandling();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();

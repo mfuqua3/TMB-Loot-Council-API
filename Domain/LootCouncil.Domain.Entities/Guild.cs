@@ -7,5 +7,6 @@ namespace LootCouncil.Domain.Entities
         public ulong Id { get; set; }
         public string Name { get; set; }
         public List<GuildUser> GuildUsers { get; set; }
+        public GuildConfiguration Configuration { get; set; }
     }
 }
