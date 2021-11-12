@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LootCouncil.Engine
 {
-    public class JwtEngine : IJwtEngine
+    internal class JwtEngine : IJwtEngine
     {
         private readonly JwtTokenOptions _config;
 

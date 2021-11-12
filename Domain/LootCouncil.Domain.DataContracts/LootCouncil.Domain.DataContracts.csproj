@@ -8,4 +8,8 @@
       <ProjectReference Include="..\LootCouncil.Domain.Common\LootCouncil.Domain.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Core\Model" />
+    </ItemGroup>
+
 </Project>

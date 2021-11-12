@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Moq" Version="4.16.1" />
+        <PackageReference Include="NUnit" Version="3.12.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.Common\LootCouncil.Domain.Common.csproj" />
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.DataContracts\LootCouncil.Domain.DataContracts.csproj" />
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.Data\LootCouncil.Domain.Data.csproj" />
+      <ProjectReference Include="..\..\Domain\LootCouncil.Domain.Entities\LootCouncil.Domain.Entities.csproj" />
+      <ProjectReference Include="..\..\Engine\LootCouncil.Engine.Common\LootCouncil.Engine.Common.csproj" />
+      <ProjectReference Include="..\..\Engine\LootCouncil.Engine\LootCouncil.Engine.csproj" />
+      <ProjectReference Include="..\..\Presentation\LootCouncil.Presentation.API\LootCouncil.Presentation.API.csproj" />
+      <ProjectReference Include="..\..\Service\LootCouncil.Service.Common\LootCouncil.Service.Common.csproj" />
+      <ProjectReference Include="..\..\Service\LootCouncil.Service\LootCouncil.Service.csproj" />
+      <ProjectReference Include="..\..\Utility\LootCouncil.Utility\LootCouncil.Utility.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Engine" />
+    </ItemGroup>
+
+</Project>

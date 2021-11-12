@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using LootCouncil.Domain.Data;
-using LootCouncil.Domain.DataContracts.Identity.Response;
+using LootCouncil.Domain.DataContracts.Identity.Model;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Engine;
 using Microsoft.AspNetCore.Identity;
@@ -22,7 +22,7 @@ namespace LootCouncil.Service.Identity
             _userManager = userManager;
             _jwtEngine = jwtEngine;
         }
-        async Task<TokenResponse> IAccountService.DiscordAuthorize(ClaimsPrincipal claims)
+        async Task<Token> IAccountService.DiscordAuthorize(ClaimsPrincipal claims)
         {
             var id = long.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
             var discordIdentity = await _dbContext.DiscordIdentities.FindAsync(id);
@@ -45,7 +45,7 @@ namespace LootCouncil.Service.Identity
             await _dbContext.Entry(discordIdentity).Reference(x=>x.User).LoadAsync();
             user = discordIdentity.User;
             var tokenString = _jwtEngine.GenerateToken(user);
-            return new TokenResponse()
+            return new Token()
             {
                 AccessToken = tokenString
             };
