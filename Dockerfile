@@ -4,17 +4,24 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-WORKDIR /src
-COPY ["Presentation/LootCouncil.Presentation.API/LootCouncil.Presentation.API.csproj", "LootCouncil.Presentation.API/"]
-RUN dotnet restore "LootCouncil.Presentation.API/LootCouncil.Presentation.API.csproj"
-COPY . .
-WORKDIR "/src/LootCouncil.Presentation.API"
-RUN dotnet build "LootCouncil.Presentation.API.csproj" -c Release -o /app/build
+WORKDIR /source
 
-FROM build AS publish
-RUN dotnet publish "LootCouncil.Presentation.API.csproj" -c Release -o /app/publish
+# copy csproj and restore as distinct layers
+COPY *.sln .
+COPY Presentation/**/*.csproj ./lootcouncilapp/
+COPY Domain/**/*.csproj ./lootcouncilapp/
+COPY Engine/**/*.csproj ./lootcouncilapp/
+COPY Service/**/*.csproj ./lootcouncilapp/
+COPY Utility/**/*.csproj ./lootcouncilapp/
+RUN dotnet restore
 
-FROM base AS final
+# copy everything else and build app
+COPY . ./lootcouncilapp/
+WORKDIR /source/lootcouncilapp
+RUN dotnet publish -c release -o /app --no-restore
+
+# final stage/image
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app ./
 ENTRYPOINT ["dotnet", "LootCouncil.Presentation.API.dll"]
