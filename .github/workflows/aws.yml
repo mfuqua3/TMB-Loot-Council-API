@@ -36,7 +36,7 @@ env:
   ECR_REPOSITORY: guildview-api           
   ECS_SERVICE: nginx-service                 
   ECS_CLUSTER: default                 
-  ECS_TASK_DEFINITION: first-run-task-definition 
+  ECS_TASK_DEFINITION: aws-task-definition 
                                              
   CONTAINER_NAME: nginx           
                                               
