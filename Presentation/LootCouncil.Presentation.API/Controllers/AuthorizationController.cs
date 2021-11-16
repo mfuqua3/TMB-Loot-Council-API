@@ -18,17 +18,17 @@ namespace LootCouncil.Presentation.API.Controllers
             _accountService = accountService;
         }
         [HttpGet("~/connect/discord")]
-        public IActionResult Discord()
+        public IActionResult Discord(string returnUrl)
         {
             var authenticationProperties = new AuthenticationProperties
             {
-                RedirectUri = Url.Action("HandleDiscordLogin")
+                RedirectUri = Url.Action("HandleDiscordLogin", new {returnUrl})
             };
             return Challenge(authenticationProperties, DiscordAuthenticationDefaults.AuthenticationScheme);
         }
 
         [HttpGet("~/signin-external")]
-        public async Task<IActionResult> HandleDiscordLogin()
+        public async Task<IActionResult> HandleDiscordLogin(string returnUrl)
         {
             var claimsPrincipal = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
             if (!claimsPrincipal.Succeeded)
@@ -37,8 +37,9 @@ namespace LootCouncil.Presentation.API.Controllers
             }
 
             var discordAccessToken = claimsPrincipal.Properties.Items[".Token.access_token"];
-            var accessToken = await _accountService.DiscordAuthorize(discordAccessToken);
-            return Ok(accessToken);
+            var tokenResponse = await _accountService.DiscordAuthorize(discordAccessToken);
+            returnUrl = returnUrl.Replace(":token", tokenResponse.AccessToken);
+            return Redirect(returnUrl);
         }
     }
 }
