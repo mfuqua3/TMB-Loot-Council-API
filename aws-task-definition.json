@@ -9,7 +9,7 @@
         "logDriver": "awslogs",
         "secretOptions": null,
         "options": {
-          "awslogs-group": "/ecs/guild-view-dev",
+          "awslogs-group": "/ecs/guildview-app",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
