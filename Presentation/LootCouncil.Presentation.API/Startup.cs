@@ -84,6 +84,7 @@ namespace LootCouncil.Presentation.API
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/health");
                 endpoints.MapControllers();
             });
         }
