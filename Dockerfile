@@ -38,4 +38,7 @@ WORKDIR /app
 COPY --from=publish /app/Presentation/LootCouncil.Presentation.API/out ./
 EXPOSE 80
 EXPOSE 443
+ENV ConnectionStrings:DefaultConnection=Host=guildview-dev.c6rdqolhzhx8.us-east-1.rds.amazonaws.com;Username=postgres;Password=%xhvmUyXY^U3wx#7;Database=LootCouncilDev;
+ENV DiscordAuthentication:ClientSecret=Tt_4-LkTEmv0u-efuZYKuGdGMnQ1iYry
+ENV JwtBearer:Secret=OFo0dkNnRUxNYXZ1Vkw5bnNMRWJEdHM3U0dEdmZYOGk4d3A2YWpFNEpjWTZTR0p3UTl6Yg==
 ENTRYPOINT ["dotnet", "LootCouncil.Presentation.API.dll"]
