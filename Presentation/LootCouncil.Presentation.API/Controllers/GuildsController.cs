@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.DataContracts.Core.Response;
 using LootCouncil.Service.Core;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,12 @@ namespace LootCouncil.Presentation.API.Controllers
     public class GuildsController : ApiController
     {
         private readonly IUserDataService _userDataService;
+        private readonly IGuildService _guildService;
 
-        public GuildsController(IUserDataService userDataService)
+        public GuildsController(IUserDataService userDataService, IGuildService guildService)
         {
             _userDataService = userDataService;
+            _guildService = guildService;
         }
 
         [HttpGet]
@@ -21,10 +24,12 @@ namespace LootCouncil.Presentation.API.Controllers
             var response = await _userDataService.GetUserGuilds(UserId);
             return Ok(response);
         }
-        [HttpGet("{id}/configure")]
-        public async Task ClaimGuild()
+        [HttpPost("configure")]
+        public async Task<ActionResult<ClaimGuildResponse>> ClaimGuild(ClaimGuildRequest request)
         {
-            
+            request.UserId = UserId;
+            var response = await _guildService.ClaimGuild(request);
+            return Created("", response);
         }
     }
 }

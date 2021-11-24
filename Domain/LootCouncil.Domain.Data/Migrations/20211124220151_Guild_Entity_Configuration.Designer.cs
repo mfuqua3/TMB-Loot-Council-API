@@ -3,15 +3,17 @@ using System;
 using LootCouncil.Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace LootCouncil.Domain.Data.Migrations
 {
     [DbContext(typeof(LootCouncilDbContext))]
-    partial class LootCouncilDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211124220151_Guild_Entity_Configuration")]
+    partial class Guild_Entity_Configuration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

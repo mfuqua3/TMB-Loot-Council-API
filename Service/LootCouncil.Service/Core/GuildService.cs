@@ -26,10 +26,11 @@ namespace LootCouncil.Service.Core
         public async Task<ClaimGuildResponse> ClaimGuild(ClaimGuildRequest request)
         {
             var guild = await _dbContext.GuildUsers
+                .Include(u=>u.Guild)
+                .ThenInclude(g=>g.Configuration)
                 .AsQueryable()
                 .Where(x => x.UserId == request.UserId)
                 .Select(x => x.Guild)
-                .Include(x => x.Configuration)
                 .SingleOrDefaultAsync(x => x.Id == request.GuildId);
             if (guild == null)
             {

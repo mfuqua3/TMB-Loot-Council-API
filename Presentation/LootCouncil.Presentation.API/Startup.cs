@@ -19,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace LootCouncil.Presentation.API
 {
@@ -33,6 +34,7 @@ namespace LootCouncil.Presentation.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtBearer"));
             services.AddDbContext<LootCouncilDbContext>(cfg =>
             {
@@ -44,6 +46,7 @@ namespace LootCouncil.Presentation.API
                 .AddEntityFrameworkStores<LootCouncilDbContext>()
                 .AddDefaultTokenProviders();
             services.AddControllers();
+            services.AddHealthChecks();
             services.AddAuthentication()
                 .AddJwtBearer(opt =>
                     opt.TokenValidationParameters = new TokenValidationParameters
@@ -70,6 +73,10 @@ namespace LootCouncil.Presentation.API
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(GuildProfile).Assembly));
             services.AddCustomMiddleware();
             services.AddAuthorization();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo() {Title = "TMB LootCouncil", Version = "v1"});
+            });
             services.AddApplicationServices();
             services.AddApplicationEngines();
         }
@@ -77,6 +84,12 @@ namespace LootCouncil.Presentation.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LootCouncilDbContext dbContext)
         {
             dbContext.Database.Migrate();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TMB LootCouncil v1");
+                c.RoutePrefix = "swagger";
+            });
             app.UseExceptionHandling();
             app.UseHttpsRedirection();
             app.UseRouting();
