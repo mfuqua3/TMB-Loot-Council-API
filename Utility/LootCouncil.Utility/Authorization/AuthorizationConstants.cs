@@ -8,5 +8,12 @@
             public const string Admin = "Admin";
             public const string Developer = "Developer";
         }
+
+        public static class Claims
+        {
+            public const string GuildId = "guild_id";
+            public const string GuildName = "guild_name";
+            public const string GuildRole = "guild_role";
+        }
     }
 }

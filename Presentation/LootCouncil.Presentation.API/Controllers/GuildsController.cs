@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.DataContracts.Core.Response;
+using LootCouncil.Domain.DataContracts.Identity.Response;
 using LootCouncil.Service.Core;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,13 @@ namespace LootCouncil.Presentation.API.Controllers
             request.UserId = UserId;
             var response = await _guildService.ClaimGuild(request);
             return Created("", response);
+        }
+
+        [HttpGet("select/{id}")]
+        public async Task<ActionResult<TokenResponse>> ChangeGuildScope(ulong id)
+        {
+            var token = await _guildService.ChangeGuildScope(UserId, id);
+            return Ok(new TokenResponse { AccessToken = token });
         }
     }
 }

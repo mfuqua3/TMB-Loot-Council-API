@@ -93,6 +93,10 @@ namespace LootCouncil.Presentation.API
             app.UseExceptionHandling();
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors(c=>c
+                .AllowAnyHeader()
+                .AllowAnyOrigin()
+                .AllowAnyMethod());
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

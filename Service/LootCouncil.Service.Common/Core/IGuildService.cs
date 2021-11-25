@@ -7,5 +7,6 @@ namespace LootCouncil.Service.Core
     public interface IGuildService
     {
         Task<ClaimGuildResponse> ClaimGuild(ClaimGuildRequest request);
+        Task<string> ChangeGuildScope(string userId, ulong id);
     }
 }
