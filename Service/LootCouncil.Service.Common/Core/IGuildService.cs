@@ -8,5 +8,6 @@ namespace LootCouncil.Service.Core
     {
         Task<ClaimGuildResponse> ClaimGuild(ClaimGuildRequest request);
         Task<string> ChangeGuildScope(string userId, ulong id);
+        Task ReleaseGuild(string userId, ulong guildId);
     }
 }

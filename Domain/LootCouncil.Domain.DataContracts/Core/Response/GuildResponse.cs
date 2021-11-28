@@ -2,7 +2,7 @@
 {
     public class GuildResponse
     {
-        public ulong Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public bool Configured { get; set; }
     }

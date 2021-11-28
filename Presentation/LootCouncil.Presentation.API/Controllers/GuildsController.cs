@@ -4,6 +4,7 @@ using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.DataContracts.Core.Response;
 using LootCouncil.Domain.DataContracts.Identity.Response;
 using LootCouncil.Service.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LootCouncil.Presentation.API.Controllers
@@ -32,7 +33,13 @@ namespace LootCouncil.Presentation.API.Controllers
             var response = await _guildService.ClaimGuild(request);
             return Created("", response);
         }
-
+        [HttpDelete("release/{guildId}")]
+        [Authorize(Roles = "Admin,Developer")]
+        public async Task<IActionResult> ReleaseGuild(ulong guildId)
+        {
+            await _guildService.ReleaseGuild(UserId, guildId);
+            return NoContent();
+        }
         [HttpGet("select/{id}")]
         public async Task<ActionResult<TokenResponse>> ChangeGuildScope(ulong id)
         {

@@ -41,15 +41,13 @@ namespace LootCouncil.Service.Core
                 throw new KeyNotFoundException();
             }
 
-            if (guild.Configuration != null)
+            if (guild.Configuration?.OwnerId != null)
             {
                 throw new InvalidOperationException("That guild has already been claimed.");
             }
 
-            guild.Configuration = new GuildConfiguration()
-            {
-                OwnerId = request.UserId
-            };
+            guild.Configuration ??= new GuildConfiguration();
+            guild.Configuration.OwnerId = request.UserId;
             await _dbContext.SaveChangesAsync();
             return await _dbContext
                 .Guilds
@@ -57,6 +55,29 @@ namespace LootCouncil.Service.Core
                 .Where(x => x.Id == request.GuildId)
                 .ProjectTo<ClaimGuildResponse>(_configurationProvider)
                 .SingleAsync();
+        }
+
+        public async Task ReleaseGuild(string userId, ulong guildId)
+        {
+            var guild = await _dbContext.GuildUsers
+                .Include(u => u.Guild)
+                .ThenInclude(g => g.Configuration)
+                .AsQueryable()
+                .Where(x => x.UserId == userId)
+                .Select(x => x.Guild)
+                .SingleOrDefaultAsync(x => x.Id == guildId);
+            if (guild == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            if (guild.Configuration == null || guild.Configuration?.OwnerId != userId)
+            {
+                throw new InvalidOperationException("That guild is not owned by that user.");
+            }
+
+            guild.Configuration.OwnerId = null;
+            await _dbContext.SaveChangesAsync();
         }
 
         async Task<string> IGuildService.ChangeGuildScope(string userId, ulong id)
@@ -71,6 +92,7 @@ namespace LootCouncil.Service.Core
             {
                 throw new KeyNotFoundException();
             }
+
             if (guildUser.Guild.Configuration == null)
             {
                 throw new InvalidOperationException("That guild has not been configured.");
