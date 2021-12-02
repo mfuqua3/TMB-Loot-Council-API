@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using LootCouncil.Utility.Converters;
 
 namespace LootCouncil.Domain.DataContracts.ThatsMyBis
 {
@@ -15,10 +16,13 @@ namespace LootCouncil.Domain.DataContracts.ThatsMyBis
         [JsonPropertyName("list_number")]
         public int ListNumber { get; set; }
         [JsonPropertyName("is_offspec")]
+        [JsonNumberToBoolean]
         public bool IsOffspec { get; set; }
         [JsonPropertyName("is_received")]
+        [JsonNumberToBoolean]
         public bool IsReceived { get; set; }
         [JsonPropertyName("received_at")]
+        [JsonConverter(typeof(TmbNullableDateTimeConverter))]
         public DateTime? ReceivedAt { get; set; }
         public string Note { get; set; }
         [JsonPropertyName("raid_group_id")]

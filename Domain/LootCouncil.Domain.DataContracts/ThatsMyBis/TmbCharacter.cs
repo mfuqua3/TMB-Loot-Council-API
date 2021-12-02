@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using LootCouncil.Utility.Converters;
 
 namespace LootCouncil.Domain.DataContracts.ThatsMyBis
 {
@@ -25,19 +26,22 @@ namespace LootCouncil.Domain.DataContracts.ThatsMyBis
         [JsonPropertyName("rank_goal")]
         public string RankGoal { get; set; }
         [JsonPropertyName("raid_group_id")]
-        public string RaidGroupId { get; set; }
+        public int? RaidGroupId { get; set; }
         [JsonPropertyName("is_alt")]
+        [JsonNumberToBoolean]
         public bool IsAlt { get; set; }
         public string Username { get; set; }
         [JsonPropertyName("member_slug")]
         public string MemberSlug { get; set; }
         [JsonPropertyName("discord_id")]
-        public long DiscordId { get; set; }
+        public long? DiscordId { get; set; }
         [JsonPropertyName("discord_username")]
         public string DiscordUsername { get; set; }
         [JsonPropertyName("is_wishlist_unlocked")]
+        [JsonNumberToBoolean]
         public bool IsWishlistUnlocked { get; set; }
         [JsonPropertyName("is_received_unlocked")]
+        [JsonNumberToBoolean]
         public bool IsReceivedUnlocked { get; set; }
         [JsonPropertyName("raid_group_name")]
         public string RaidGroupName { get; set; }
@@ -50,7 +54,7 @@ namespace LootCouncil.Domain.DataContracts.ThatsMyBis
         [JsonPropertyName("benched_count")]
         public int BenchedCount { get; set; }
         [JsonPropertyName("attendance_percentage")]
-        public string AttendancePercentage { get; set; }
+        public double AttendancePercentage { get; set; }
         [JsonPropertyName("display_archetype")]
         public string DisplayArchetype { get; set; }
         [JsonPropertyName("display_class")]

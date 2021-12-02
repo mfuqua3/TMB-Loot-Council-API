@@ -47,8 +47,8 @@ namespace LootCouncil.Engine
             if (user.ActiveGuild != null)
             {
                 var role = user.ActiveGuild.Configuration.OwnerId == userId
-                    ? "Owner"
-                    : AuthorizationConstants.Roles.Basic;
+                    ? AuthorizationConstants.GuildRoles.Owner
+                    : AuthorizationConstants.GuildRoles.Basic;
                 claims.AddClaims(new[]
                 {
                     new Claim(AuthorizationConstants.Claims.GuildId, user.ActiveGuild.Id.ToString()),

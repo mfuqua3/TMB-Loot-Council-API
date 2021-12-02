@@ -2,10 +2,12 @@ using System;
 using LootCouncil.Domain.Data;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Engine.DependencyInjection;
+using LootCouncil.Presentation.API.BackgroundServices;
 using LootCouncil.Presentation.API.Middleware;
 using LootCouncil.Service.DependencyInjection;
 using LootCouncil.Service.Mapping;
 using LootCouncil.Utility.Configuration;
+using LootCouncil.Utility.Converters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +32,7 @@ namespace LootCouncil.Presentation.API
         {
             
             services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtBearer"));
+            services.Configure<RootOptions>(_configuration.GetSection("Root"));
             services.AddDbContext<LootCouncilDbContext>(cfg =>
             {
                 cfg.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
@@ -39,7 +42,11 @@ namespace LootCouncil.Presentation.API
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<LootCouncilDbContext>()
                 .AddDefaultTokenProviders();
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(opt =>
+                {
+                    //opt.JsonSerializerOptions.Converters.Add(new NumberToBooleanConverter());
+                });
             services.AddHealthChecks();
             services.AddAuthentication()
                 .AddJwtBearer(opt =>
@@ -71,6 +78,7 @@ namespace LootCouncil.Presentation.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo() {Title = "TMB LootCouncil", Version = "v1"});
             });
+            services.AddHostedService<IdentitySeeder>();
             services.AddApplicationServices();
             services.AddApplicationEngines();
         }

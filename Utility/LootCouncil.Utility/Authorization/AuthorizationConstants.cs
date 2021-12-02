@@ -15,5 +15,12 @@
             public const string GuildName = "guild_name";
             public const string GuildRole = "guild_role";
         }
+
+        public static class GuildRoles
+        {
+            public const string Basic = "Basic";
+            public const string Admin = "Admin";
+            public const string Owner = "Owner";
+        }
     }
 }
