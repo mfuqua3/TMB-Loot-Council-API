@@ -1,4 +1,3 @@
-using Discord;
 using Discord.Rest;
 using LootCouncil.Service.Core;
 using LootCouncil.Service.Identity;

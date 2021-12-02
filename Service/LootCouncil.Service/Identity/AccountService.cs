@@ -1,10 +1,9 @@
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Rest;
 using LootCouncil.Domain.Data;
-using LootCouncil.Domain.DataContracts.Identity.Response;
+using LootCouncil.Domain.DataContracts.Identity.Model;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Engine;
 using Microsoft.AspNetCore.Identity;
@@ -30,7 +29,7 @@ namespace LootCouncil.Service.Identity
             _jwtEngine = jwtEngine;
         }
 
-        async Task<TokenResponse> IAccountService.DiscordAuthorize(string accessToken)
+        async Task<Token> IAccountService.DiscordAuthorize(string accessToken)
         {
             using var client = new DiscordRestClient();
             await client.LoginAsync(TokenType.Bearer, accessToken);
@@ -46,7 +45,7 @@ namespace LootCouncil.Service.Identity
                     .Cast<IUserGuild>()
                     .ToList());
             var token = await _jwtEngine.GenerateToken(user.Id);
-            return new TokenResponse() {AccessToken = token};
+            return new Token() {AccessToken = token};
         }
     }
 }

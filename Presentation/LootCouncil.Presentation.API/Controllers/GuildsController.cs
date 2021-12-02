@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.DataContracts.Core.Response;
-using LootCouncil.Domain.DataContracts.Identity.Response;
+using LootCouncil.Domain.DataContracts.Identity.Model;
 using LootCouncil.Service.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,10 +41,10 @@ namespace LootCouncil.Presentation.API.Controllers
             return NoContent();
         }
         [HttpGet("select/{id}")]
-        public async Task<ActionResult<TokenResponse>> ChangeGuildScope(ulong id)
+        public async Task<ActionResult<Token>> ChangeGuildScope(ulong id)
         {
             var token = await _guildService.ChangeGuildScope(UserId, id);
-            return Ok(new TokenResponse { AccessToken = token });
+            return Ok(new Token() { AccessToken = token });
         }
     }
 }
