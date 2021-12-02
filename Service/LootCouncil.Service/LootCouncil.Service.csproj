@@ -10,4 +10,11 @@
       <ProjectReference Include="..\LootCouncil.Service.Common\LootCouncil.Service.Common.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="10.1.1" />
+      <PackageReference Include="AutoMapper.Collection.EntityFramework" Version="7.0.1" />
+      <PackageReference Include="Discord.Net" Version="2.4.0" />
+      <PackageReference Include="System.Linq.Async" Version="4.0.0" />
+    </ItemGroup>
+
 </Project>

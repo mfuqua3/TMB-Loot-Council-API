@@ -6,7 +6,8 @@ namespace LootCouncil.Engine.DependencyInjection
     {
         public static IServiceCollection AddApplicationEngines(this IServiceCollection services)
         {
-            return services.AddTransient<IJwtEngine, JwtEngine>();
+            return services.AddScoped<IJwtEngine, JwtEngine>()
+                .AddScoped<IUserEngine, UserEngine>();
         }
     }
 }

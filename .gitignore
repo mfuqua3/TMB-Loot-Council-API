@@ -333,3 +333,5 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 Presentation/LootCouncil.Presentation.API/appsettings.Development.json
+.vscode/tasks.json
+.vscode/launch.json

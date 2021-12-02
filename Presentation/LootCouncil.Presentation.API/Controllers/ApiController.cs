@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LootCouncil.Presentation.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class ApiController : Controller
+    [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public abstract class ApiController : Controller
     {
-        
+        protected string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 }

@@ -1,54 +1,52 @@
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Rest;
 using LootCouncil.Domain.Data;
-using LootCouncil.Domain.DataContracts.Identity.Model;
+using LootCouncil.Domain.DataContracts.Identity.Response;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Engine;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace LootCouncil.Service.Identity
 {
     public class AccountService : IAccountService
     {
         private readonly LootCouncilDbContext _dbContext;
+        private readonly IUserEngine _userEngine;
         private readonly UserManager<LootCouncilUser> _userManager;
         private readonly IJwtEngine _jwtEngine;
 
         public AccountService(LootCouncilDbContext dbContext,
+            IUserEngine userEngine,
             UserManager<LootCouncilUser> userManager,
             IJwtEngine jwtEngine)
         {
             _dbContext = dbContext;
+            _userEngine = userEngine;
             _userManager = userManager;
             _jwtEngine = jwtEngine;
         }
-        async Task<Token> IAccountService.DiscordAuthorize(ClaimsPrincipal claims)
+
+        async Task<TokenResponse> IAccountService.DiscordAuthorize(string accessToken)
         {
-            var id = long.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
-            var discordIdentity = await _dbContext.DiscordIdentities.FindAsync(id);
-            LootCouncilUser user;
-            if (discordIdentity == null)
-            {
-                user = new LootCouncilUser()
-                {
-                    Email = claims.FindFirstValue(ClaimTypes.Email),
-                    UserName = claims.FindFirstValue(ClaimTypes.Name),
-                    DiscordIdentity = new DiscordIdentity()
-                    {
-                        UserName = claims.FindFirstValue(ClaimTypes.Name),
-                        Id = id
-                    }
-                };
-                await _userManager.CreateAsync(user);
-                discordIdentity = user.DiscordIdentity;
-            }
-            await _dbContext.Entry(discordIdentity).Reference(x=>x.User).LoadAsync();
-            user = discordIdentity.User;
-            var tokenString = _jwtEngine.GenerateToken(user);
-            return new Token()
-            {
-                AccessToken = tokenString
-            };
+            using var client = new DiscordRestClient();
+            await client.LoginAsync(TokenType.Bearer, accessToken);
+            var discordUser = client.CurrentUser;
+            var user = await _dbContext.Users
+                           .Include(x=>x.DiscordIdentity)
+                           .SingleOrDefaultAsync(x=>x.DiscordIdentity.Id == discordUser.Id) ??
+                       await _userEngine.InitializeUserAsync(discordUser);
+            var guildsPaginated = await client.GetGuildSummariesAsync().ToListAsync();
+            await _userEngine.UpdateGuildsAsync(user.Id,
+                guildsPaginated
+                    .SelectMany(x => x)
+                    .Cast<IUserGuild>()
+                    .ToList());
+            var token = await _jwtEngine.GenerateToken(user.Id);
+            return new TokenResponse() {AccessToken = token};
         }
     }
 }

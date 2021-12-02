@@ -1,11 +1,11 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
-using LootCouncil.Domain.DataContracts.Identity.Model;
+using LootCouncil.Domain.DataContracts.Identity.Response;
 
 namespace LootCouncil.Service.Identity
 {
     public interface IAccountService
     {
-        Task<Token> DiscordAuthorize(ClaimsPrincipal claims);
+        Task<TokenResponse> DiscordAuthorize(string discordAccessToken);
     }
 }
