@@ -19,13 +19,14 @@ namespace LootCouncil.Service.Core
             _dbContext = dbContext;
             _mapperConfigurationProvider = mapperConfigurationProvider;
         }
-        public async Task<List<GuildResponse>> GetUserGuilds(string userId)
+
+        public async Task<List<DiscordServerResponse>> GetUserServers(string userId)
         {
-            return await _dbContext.GuildUsers
+            return await _dbContext.DiscordServerMembers
                 .AsQueryable()
-                .Where(x => x.UserId == userId)
-                .Select(x => x.Guild)
-                .ProjectTo<GuildResponse>(_mapperConfigurationProvider)
+                .Where(x => x.Member.UserId == userId)
+                .Select(x => x.Server)
+                .ProjectTo<DiscordServerResponse>(_mapperConfigurationProvider)
                 .ToListAsync();
         }
     }

@@ -6,8 +6,8 @@ namespace LootCouncil.Service.Core
 {
     public interface IGuildService
     {
-        Task<ClaimGuildResponse> ClaimGuild(ClaimGuildRequest request);
-        Task<string> ChangeGuildScope(string userId, ulong id);
-        Task ReleaseGuild(string userId, ulong guildId);
+        Task<ClaimServerResponse> ClaimDiscordServer(ClaimDiscordServerRequest request);
+        Task<string> ChangeGuildScope(string userId, int id);
+        Task ReleaseGuild(string userId, int guildId);
     }
 }

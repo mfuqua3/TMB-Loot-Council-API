@@ -6,6 +6,6 @@ namespace LootCouncil.Service.Core
 {
     public interface IUserDataService
     {
-        Task<List<GuildResponse>> GetUserGuilds(string userId);
+        Task<List<DiscordServerResponse>> GetUserServers(string userId);
     }
 }

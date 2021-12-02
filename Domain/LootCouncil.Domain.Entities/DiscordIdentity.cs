@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LootCouncil.Domain.Data;
 
 namespace LootCouncil.Domain.Entities
@@ -12,5 +13,6 @@ namespace LootCouncil.Domain.Entities
         public string Discriminator { get; set; }
         public DateTime Created { get; set; }
         public DateTime? Updated { get; set; }
+        public List<DiscordServerMember> ServerMemberships { get; set; }
     }
 }

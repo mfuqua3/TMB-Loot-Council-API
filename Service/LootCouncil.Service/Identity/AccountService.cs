@@ -39,7 +39,7 @@ namespace LootCouncil.Service.Identity
                            .SingleOrDefaultAsync(x=>x.DiscordIdentity.Id == discordUser.Id) ??
                        await _userEngine.InitializeUserAsync(discordUser);
             var guildsPaginated = await client.GetGuildSummariesAsync().ToListAsync();
-            await _userEngine.UpdateGuildsAsync(user.Id,
+            await _userEngine.UpdateServersAsync(user.Id,
                 guildsPaginated
                     .SelectMany(x => x)
                     .Cast<IUserGuild>()

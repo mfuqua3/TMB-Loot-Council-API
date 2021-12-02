@@ -8,6 +8,7 @@ using LootCouncil.Domain.Entities;
 using LootCouncil.Utility.Authorization;
 using LootCouncil.Utility.Configuration;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,7 +21,7 @@ namespace LootCouncil.Engine
         private readonly JwtTokenOptions _config;
 
         public JwtEngine(
-            IOptions<JwtTokenOptions> options, 
+            IOptions<JwtTokenOptions> options,
             UserManager<LootCouncilUser> userManager,
             LootCouncilDbContext db)
         {
@@ -28,15 +29,13 @@ namespace LootCouncil.Engine
             _db = db;
             _config = options.Value;
         }
+
         public async Task<string> GenerateToken(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             var roles = await _userManager.GetRolesAsync(user);
             await _db.Entry(user).Reference(x => x.ActiveGuild).LoadAsync();
-            if(user.ActiveGuild!=null)
-            {
-                await _db.Entry(user.ActiveGuild).Reference(x => x.Configuration).LoadAsync();
-            }
+            
             var claims = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
@@ -46,9 +45,15 @@ namespace LootCouncil.Engine
             claims.AddClaims(roles.Select(x => new Claim(ClaimTypes.Role, x)));
             if (user.ActiveGuild != null)
             {
+                await _db.Entry(user.ActiveGuild).Reference(x => x.Configuration).LoadAsync();
+                var guildRoleName = await _db.GuildUsers
+                    .AsQueryable()
+                    .Where(x => x.GuildId == user.ActiveGuild.Id && x.UserId == userId)
+                    .Select(x => x.Role.Name)
+                    .SingleAsync();
                 var role = user.ActiveGuild.Configuration.OwnerId == userId
                     ? AuthorizationConstants.GuildRoles.Owner
-                    : AuthorizationConstants.GuildRoles.Basic;
+                    : guildRoleName;
                 claims.AddClaims(new[]
                 {
                     new Claim(AuthorizationConstants.Claims.GuildId, user.ActiveGuild.Id.ToString()),
@@ -56,6 +61,7 @@ namespace LootCouncil.Engine
                     new Claim(AuthorizationConstants.Claims.GuildRole, role)
                 });
             }
+
             var symmetricKey = Convert.FromBase64String(_config.Secret);
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -65,7 +71,7 @@ namespace LootCouncil.Engine
                 Subject = claims,
                 Expires = now.AddMinutes(Convert.ToInt32(_config.TtlMinutes)),
                 SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(symmetricKey), 
+                    new SymmetricSecurityKey(symmetricKey),
                     SecurityAlgorithms.HmacSha256Signature),
                 Audience = _config.Audience,
                 Issuer = _config.Authority

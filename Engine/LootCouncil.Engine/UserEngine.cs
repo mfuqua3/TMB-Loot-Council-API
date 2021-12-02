@@ -40,43 +40,46 @@ namespace LootCouncil.Engine
             return newUser;
         }
 
-        public async Task UpdateGuildsAsync(string userId, ICollection<IUserGuild> guilds)
+        public async Task UpdateServersAsync(string userId, ICollection<IUserGuild> servers)
         {
-            var user = await _dbContext.Users
-                .Include(x => x.GuildUsers)
-                .ThenInclude(x => x.Guild)
-                .SingleAsync(x => x.Id == userId);
-            var sourceGuildIds = guilds.Select(g => g.Id).ToArray();
-            var destinationGuildIds = user.GuildUsers.Select(g => g.GuildId).ToArray();
-            var toRemove = user.GuildUsers.Where(x => !sourceGuildIds.Contains(x.GuildId));
-            var toAdd = guilds.Where(x => !destinationGuildIds.Contains(x.Id));
-            _dbContext.GuildUsers.RemoveRange(toRemove);
+            var userDiscordIdentity = await _dbContext.Users
+                .AsQueryable()
+                .Include(x=>x.DiscordIdentity)
+                .ThenInclude(x=>x.ServerMemberships)
+                .Where(x => x.Id == userId)
+                .Select(x => x.DiscordIdentity)
+                .SingleAsync();
+            var sourceGuildIds = servers.Select(g => g.Id).ToArray();
+            var destinationGuildIds = userDiscordIdentity.ServerMemberships.Select(x => x.ServerId);
+            var toRemove = userDiscordIdentity.ServerMemberships.Where(x => !sourceGuildIds.Contains(x.ServerId));
+            var toAdd = servers.Where(x => !destinationGuildIds.Contains(x.Id));
+            _dbContext.DiscordServerMembers.RemoveRange(toRemove);
             foreach (var guild in toAdd)
             {
-                var guildEntity = await AddOrGetGuild(guild);
-                var guildUser = new GuildUser()
+                var serverEntity = await AddOrGetServer(guild);
+                var serverMember = new DiscordServerMember()
                 {
-                    UserId = userId,
-                    GuildId = guildEntity.Id
+                    MemberId = userDiscordIdentity.Id,
+                    ServerId = serverEntity.Id
                 };
-                await _dbContext.GuildUsers.AddAsync(guildUser);
+                await _dbContext.DiscordServerMembers.AddAsync(serverMember);
             }
 
             await _dbContext.SaveChangesAsync();
         }
 
-        private async Task<Guild> AddOrGetGuild(IUserGuild guild)
+        private async Task<DiscordServerIdentity> AddOrGetServer(IUserGuild guild)
         {
-            var existingGuild = await EntityFrameworkQueryableExtensions.SingleOrDefaultAsync(_dbContext.Guilds, x => x.Id == guild.Id);
-            if (existingGuild != null) return existingGuild;
-            var newGuild = new Guild()
+            var existingServer = await _dbContext.DiscordServers.FindAsync(guild.Id);
+            if (existingServer != null) return existingServer;
+            var newServer = new DiscordServerIdentity()
             {
                 Name = guild.Name,
                 Id = guild.Id
             };
-            await _dbContext.Guilds.AddAsync(newGuild);
+            await _dbContext.DiscordServers.AddAsync(newServer);
             await _dbContext.SaveChangesAsync();
-            return newGuild;
+            return newServer;
         }
     }
 }

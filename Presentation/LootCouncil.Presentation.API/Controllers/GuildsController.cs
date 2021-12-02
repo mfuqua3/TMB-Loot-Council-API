@@ -21,27 +21,27 @@ namespace LootCouncil.Presentation.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<GuildResponse>>> GetUserGuilds()
+        public async Task<ActionResult<List<DiscordServerResponse>>> GetUserServers()
         {
-            var response = await _userDataService.GetUserGuilds(UserId);
+            var response = await _userDataService.GetUserServers(UserId);
             return Ok(response);
         }
         [HttpPost("configure")]
-        public async Task<ActionResult<ClaimGuildResponse>> ClaimGuild(ClaimGuildRequest request)
+        public async Task<ActionResult<ClaimServerResponse>> ClaimGuild(ClaimDiscordServerRequest request)
         {
             request.UserId = UserId;
-            var response = await _guildService.ClaimGuild(request);
+            var response = await _guildService.ClaimDiscordServer(request);
             return Created("", response);
         }
         [HttpDelete("release/{guildId}")]
         [Authorize(Roles = "Admin,Developer")]
-        public async Task<IActionResult> ReleaseGuild(ulong guildId)
+        public async Task<IActionResult> ReleaseGuild(int guildId)
         {
             await _guildService.ReleaseGuild(UserId, guildId);
             return NoContent();
         }
         [HttpGet("select/{id}")]
-        public async Task<ActionResult<Token>> ChangeGuildScope(ulong id)
+        public async Task<ActionResult<Token>> ChangeGuildScope(int id)
         {
             var token = await _guildService.ChangeGuildScope(UserId, id);
             return Ok(new Token() { AccessToken = token });

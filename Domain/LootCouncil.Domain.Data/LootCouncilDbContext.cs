@@ -11,7 +11,10 @@ namespace LootCouncil.Domain.Data
     public class LootCouncilDbContext : IdentityDbContext<LootCouncilUser>
     {
         public DbSet<Guild> Guilds { get; set; }
+        public DbSet<DiscordServerIdentity> DiscordServers { get; set; }
+        public DbSet<DiscordServerMember> DiscordServerMembers { get; set; }
         public DbSet<GuildUser> GuildUsers { get; set; }
+        public DbSet<GuildRole> GuildRoles { get; set; }
         public LootCouncilDbContext(DbContextOptions options): base(options)
         {
             
