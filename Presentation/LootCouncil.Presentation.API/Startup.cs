@@ -8,6 +8,7 @@ using LootCouncil.Service.DependencyInjection;
 using LootCouncil.Service.Mapping;
 using LootCouncil.Utility.Configuration;
 using LootCouncil.Utility.Converters;
+using LootCouncil.Utility.Wowhead;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -79,6 +80,7 @@ namespace LootCouncil.Presentation.API
                 c.SwaggerDoc("v1", new OpenApiInfo() {Title = "TMB LootCouncil", Version = "v1"});
             });
             services.AddHostedService<IdentitySeeder>();
+            services.AddTransient<IWowheadClient, WowheadClient>();
             services.AddApplicationServices();
             services.AddApplicationEngines();
         }
