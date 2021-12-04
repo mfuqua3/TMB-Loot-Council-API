@@ -2,9 +2,10 @@ using LootCouncil.Domain.DataContracts.ThatsMyBis;
 
 namespace LootCouncil.Domain.DataContracts.Core.Request
 {
-    public class ImportTmbDataRequest
+    public class CreateImportRequest
     {
-        public ulong GuildId { get; set; }
+        public int GuildId { get; set; }
+        public string UserId { get; set; }
         public TmbRosterState Data { get; set; }
     }
 }

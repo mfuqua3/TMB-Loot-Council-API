@@ -10,6 +10,7 @@ namespace LootCouncil.Service.DependencyInjection
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             return services
+                .AddScoped<IImportService, ImportService>()
                 .AddScoped<IGuildService, GuildService>()
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<IUserDataService, UserDataService>()

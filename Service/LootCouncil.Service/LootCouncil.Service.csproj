@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="10.1.1" />
+      <PackageReference Include="Hangfire.Core" Version="1.7.25" />
       <PackageReference Include="AutoMapper.Collection.EntityFramework" Version="7.0.1" />
       <PackageReference Include="Discord.Net" Version="2.4.0" />
       <PackageReference Include="System.Linq.Async" Version="4.0.0" />

@@ -1,4 +1,6 @@
 using System;
+using Hangfire;
+using Hangfire.PostgreSql;
 using LootCouncil.Domain.Data;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Engine.DependencyInjection;
@@ -31,12 +33,12 @@ namespace LootCouncil.Presentation.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtBearer"));
             services.Configure<RootOptions>(_configuration.GetSection("Root"));
             services.AddDbContext<LootCouncilDbContext>(cfg =>
             {
-                cfg.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+                cfg.UseNpgsql(connectionString);
                 cfg.EnableDetailedErrors();
             });
             services.AddIdentityCore<LootCouncilUser>()
@@ -79,6 +81,14 @@ namespace LootCouncil.Presentation.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo() {Title = "TMB LootCouncil", Version = "v1"});
             });
+            services.AddHangfire(cfg =>
+            {
+                cfg.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+                cfg.UseSimpleAssemblyNameTypeSerializer();
+                cfg.UseRecommendedSerializerSettings();
+                cfg.UsePostgreSqlStorage(connectionString);
+            });
+            services.AddHangfireServer();
             services.AddHostedService<IdentitySeeder>();
             services.AddTransient<IWowheadClient, WowheadClient>();
             services.AddApplicationServices();
