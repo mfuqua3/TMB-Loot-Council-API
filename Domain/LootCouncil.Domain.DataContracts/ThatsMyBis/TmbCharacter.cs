@@ -14,8 +14,8 @@ namespace LootCouncil.Domain.DataContracts.ThatsMyBis
         public int Level { get; set; }
         public string Race { get; set; }
         public string Class { get; set; }
-        public string ArcheType { get; set; }
         public string Spec { get; set; }
+        public string ArcheType { get; set; }
         [JsonPropertyName("spec_label")]
         public string SpecLabel { get; set; }
         [JsonPropertyName("profession_1")]
