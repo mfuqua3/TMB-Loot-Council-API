@@ -20,6 +20,7 @@ namespace LootCouncil.Domain.Data
         public DbSet<CharacterItemFilter> CharacterItemFilters { get; set; }
         public DbSet<CharacterItem> CharacterItems { get; set; }
         public DbSet<Item> Items { get; set; }
+        public DbSet<Import> Imports { get; set; }
         public LootCouncilDbContext(DbContextOptions options): base(options)
         {
             
