@@ -1,4 +1,5 @@
-﻿using LootCouncil.Domain.Data;
+﻿using System.Collections.Generic;
+using LootCouncil.Domain.Data;
 
 namespace LootCouncil.Domain.Entities
 {
@@ -11,5 +12,6 @@ namespace LootCouncil.Domain.Entities
         public int Id { get; set; }
         public int RoleId { get; set; }
         public GuildRole Role { get; set; }
+        public List<Character> Characters { get; set; }
     }
 }

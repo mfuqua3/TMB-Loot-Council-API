@@ -112,17 +112,25 @@ namespace LootCouncil.Service.Core
                 .ThenInclude(x => x.Guild)
                 .ThenInclude(x => x.Configuration)
                 .SingleAsync(x => x.Id == userId);
+            await _dbContext.Entry(guild).Reference(x => x.ServerAssociation).LoadAsync();
+            var isInServer =
+                user.DiscordIdentity.ServerMemberships.Any(x => x.ServerId == guild.ServerAssociation.ServerId);
+            if (!isInServer)
+            {
+                throw new ArgumentException("The requesting user is not a member of that server.");
+            }
+
             var guildUser = user.GuildUsers.FirstOrDefault(x => x.GuildId == id);
             if (guildUser == null)
             {
-                await _dbContext.Entry(guild).Reference(x => x.ServerAssociation).LoadAsync();
-                var isInServer =
-                    user.DiscordIdentity.ServerMemberships.Any(x => x.ServerId == guild.ServerAssociation.ServerId);
-                //TODO
-                throw new NotImplementedException();
+                guildUser = new GuildUser
+                {
+                    Guild = guild
+                };
+                user.GuildUsers.Add(guildUser);
             }
 
-            if (guildUser.Guild.Configuration == null)
+            if (!guildUser.Guild.ConfigurationId.HasValue)
             {
                 throw new InvalidOperationException("That guild has not been configured.");
             }

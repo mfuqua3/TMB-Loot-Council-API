@@ -71,6 +71,10 @@ namespace LootCouncil.Presentation.API.Middleware
                     code = 418;
                     message = ex.Message;
                     break;
+                case NotImplementedException:
+                    code = (int)HttpStatusCode.NotImplemented;
+                    message = "Support for that type of request has not yet been fully implemented.";
+                    break;
             }
 
             context.Response.ContentType = "application/json";

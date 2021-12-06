@@ -81,12 +81,13 @@ namespace LootCouncil.Presentation.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo() {Title = "TMB LootCouncil", Version = "v1"});
             });
-            services.AddHangfire(cfg =>
+            services.AddHangfire((cfg) =>
             {
                 cfg.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
                 cfg.UseSimpleAssemblyNameTypeSerializer();
                 cfg.UseRecommendedSerializerSettings();
                 cfg.UsePostgreSqlStorage(connectionString);
+                cfg.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
             });
             services.AddHangfireServer();
             services.AddHostedService<IdentitySeeder>();
@@ -116,6 +117,7 @@ namespace LootCouncil.Presentation.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHealthChecks("/health");
+                endpoints.MapHangfireDashboard();
                 endpoints.MapControllers();
             });
         }

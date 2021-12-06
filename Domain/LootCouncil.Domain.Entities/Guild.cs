@@ -12,6 +12,7 @@ namespace LootCouncil.Domain.Entities
         public DateTime? Updated { get; set; }
         public List<GuildUser> GuildUsers { get; set; }
         public List<Import> Imports { get; set; }
+        public List<Character> Characters { get; set; }
         public int? ConfigurationId { get; set; }
         public GuildConfiguration Configuration { get; set; }
         public GuildServerAssociation ServerAssociation { get; set; }

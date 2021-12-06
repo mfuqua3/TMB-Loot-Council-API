@@ -34,7 +34,7 @@ namespace LootCouncil.Domain.DataContracts.ThatsMyBis
         [JsonPropertyName("member_slug")]
         public string MemberSlug { get; set; }
         [JsonPropertyName("discord_id")]
-        public long? DiscordId { get; set; }
+        public ulong? DiscordId { get; set; }
         [JsonPropertyName("discord_username")]
         public string DiscordUsername { get; set; }
         [JsonPropertyName("is_wishlist_unlocked")]

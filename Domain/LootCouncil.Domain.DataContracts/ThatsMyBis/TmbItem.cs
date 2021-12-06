@@ -5,9 +5,13 @@ namespace LootCouncil.Domain.DataContracts.ThatsMyBis
     public class TmbItem
     {
         public int Id { get; set; }
+        [JsonPropertyName("item_id")]
         public int ItemId { get; set; }
+        [JsonPropertyName("parent_id")]
         public int? ParentId { get; set; }
+        [JsonPropertyName("parent_item_id")]
         public int? ParentItemId { get; set; }
+        [JsonPropertyName("expansion_id")]
         public int ExpansionId { get; set; }
         public string Name { get; set; }
         public double? Weight { get; set; }
