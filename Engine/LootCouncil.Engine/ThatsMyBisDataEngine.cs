@@ -52,8 +52,8 @@ namespace LootCouncil.Engine
                 }
 
                 _checkpoint += CheckpointIncrement;
-                 _dbContext.Database.CommitTransaction();
-                 _dbContext.Database.BeginTransaction();
+                _dbContext.Database.CommitTransaction();
+                _dbContext.Database.BeginTransaction();
             }
 
             var importProgress = new Progress<double>();
@@ -62,7 +62,7 @@ namespace LootCouncil.Engine
             {
                 await _dbContext.Database.BeginTransactionAsync();
                 await RunImport(tmbRosterState, import.GuildId, importProgress);
-                import.Progress = 1;
+                import.Progress = 100;
                 import.Completed = true;
                 await _dbContext.Database.CommitTransactionAsync();
             }
@@ -95,8 +95,6 @@ namespace LootCouncil.Engine
                 await ImportItems(tmbCharacter, character);
                 progress.Report(perItemProgress * totalItems);
             }
-
-            progress.Report(100);
         }
 
         private async Task ImportItems(TmbCharacter tmbCharacter, Character character)
