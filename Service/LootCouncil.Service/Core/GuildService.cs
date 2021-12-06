@@ -34,6 +34,7 @@ namespace LootCouncil.Service.Core
             {
                 throw new KeyNotFoundException();
             }
+
             var guild = await _dbContext.GuildUsers
                 .Include(u => u.Guild)
                 .ThenInclude(g => g.Configuration)
@@ -47,6 +48,7 @@ namespace LootCouncil.Service.Core
             {
                 throw new InvalidOperationException("That guild has already been claimed.");
             }
+
             if (guild == null)
             {
                 guild = new Guild()
@@ -60,6 +62,7 @@ namespace LootCouncil.Service.Core
                 };
                 await _dbContext.Guilds.AddAsync(guild);
             }
+
             guild.Configuration ??= new GuildConfiguration();
             guild.Configuration.OwnerId = request.UserId;
             await _dbContext.SaveChangesAsync();
@@ -96,7 +99,15 @@ namespace LootCouncil.Service.Core
 
         async Task<string> IGuildService.ChangeGuildScope(string userId, int id)
         {
+            var guild = await _dbContext.Guilds.FindAsync(id);
+            if (guild == null)
+            {
+                throw new KeyNotFoundException("No guild by that ID exists");
+            }
+
             var user = await _dbContext.Users
+                .Include(x => x.DiscordIdentity)
+                .ThenInclude(x => x.ServerMemberships)
                 .Include(x => x.GuildUsers)
                 .ThenInclude(x => x.Guild)
                 .ThenInclude(x => x.Configuration)
@@ -104,7 +115,11 @@ namespace LootCouncil.Service.Core
             var guildUser = user.GuildUsers.FirstOrDefault(x => x.GuildId == id);
             if (guildUser == null)
             {
-                throw new KeyNotFoundException();
+                await _dbContext.Entry(guild).Reference(x => x.ServerAssociation).LoadAsync();
+                var isInServer =
+                    user.DiscordIdentity.ServerMemberships.Any(x => x.ServerId == guild.ServerAssociation.ServerId);
+                //TODO
+                throw new NotImplementedException();
             }
 
             if (guildUser.Guild.Configuration == null)
@@ -116,6 +131,5 @@ namespace LootCouncil.Service.Core
             await _dbContext.SaveChangesAsync();
             return await _jwtEngine.GenerateToken(userId);
         }
-
     }
 }
