@@ -17,17 +17,15 @@ namespace LootCouncil.Service.Core
 {
     public class ImportService : IImportService
     {
-        private readonly IThatsMyBisDataEngine _tmbDataEngine;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly LootCouncilDbContext _dbContext;
         private readonly ILogger<ImportService> _logger;
 
-        public ImportService(IThatsMyBisDataEngine tmbDataEngine,
+        public ImportService(
             IConfigurationProvider configurationProvider,
             LootCouncilDbContext dbContext,
             ILogger<ImportService> logger)
         {
-            _tmbDataEngine = tmbDataEngine;
             _configurationProvider = configurationProvider;
             _dbContext = dbContext;
             _logger = logger;
@@ -42,7 +40,7 @@ namespace LootCouncil.Service.Core
             };
             await _dbContext.AddAsync(import);
             await _dbContext.SaveChangesAsync();
-            BackgroundJob.Enqueue(() => _tmbDataEngine.ImportData(import.Id, request.Data));
+            BackgroundJob.Enqueue<IThatsMyBisDataEngine>(x => x.ImportData(import.Id, request.Data));
             return await _dbContext
                 .Imports
                 .ProjectTo<ImportResponse>(_configurationProvider)

@@ -47,11 +47,13 @@ namespace LootCouncil.Presentation.API.BackgroundServices
                 var dbContext = workerScope.ServiceProvider.GetRequiredService<LootCouncilDbContext>();
                 var roleManager = workerScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 var userManager = workerScope.ServiceProvider.GetRequiredService<UserManager<LootCouncilUser>>();
-                await dbContext.Database.BeginTransactionAsync(stoppingToken);
+                await dbContext.Database.MigrateAsync(stoppingToken);
                 await EnsureRolesCreated(roleManager, stoppingToken);
+                await dbContext.SaveChangesAsync(stoppingToken);
                 var rootUsers = await EnsureRootUsersCreated(dbContext, userManager, stoppingToken);
+                await dbContext.SaveChangesAsync(stoppingToken);
                 await EnsureRootAccess(rootUsers, userManager, stoppingToken);
-                await dbContext.Database.CommitTransactionAsync(stoppingToken);
+                await dbContext.SaveChangesAsync(stoppingToken);
             }
             catch (Exception ex)
             {
@@ -93,6 +95,10 @@ namespace LootCouncil.Presentation.API.BackgroundServices
         {
             var rootUsers = new List<LootCouncilUser>();
             var configuredUsers = _rootUsers;
+            if (_rootUsers == null)
+            {
+                return rootUsers;
+            }
             foreach (var configuredUser in configuredUsers)
             {
                 var user = await dbContext.Users
@@ -136,7 +142,12 @@ namespace LootCouncil.Presentation.API.BackgroundServices
         {
             foreach (var user in rootUsers)
             {
-                await userManager.AddToRolesAsync(user, _roles);
+                var roles = await userManager.GetRolesAsync(user);
+                var toAdd = _roles.Except(roles).ToList();
+                if (toAdd.Any())
+                {
+                    await userManager.AddToRolesAsync(user, toAdd);
+                }
             }
         }
     }

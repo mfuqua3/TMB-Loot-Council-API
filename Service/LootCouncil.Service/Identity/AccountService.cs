@@ -45,7 +45,7 @@ namespace LootCouncil.Service.Identity
                     .Cast<IUserGuild>()
                     .ToList());
             var token = await _jwtEngine.GenerateToken(user.Id);
-            return new Token() {AccessToken = token};
+            return new Token {AccessToken = token};
         }
     }
 }

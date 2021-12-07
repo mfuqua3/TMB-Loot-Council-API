@@ -36,6 +36,11 @@ namespace LootCouncil.Presentation.API
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtBearer"));
             services.Configure<RootOptions>(_configuration.GetSection("Root"));
+            services.AddDbContextFactory<LootCouncilDbContext>(cfg =>
+            {
+                cfg.UseNpgsql(connectionString);
+                cfg.EnableDetailedErrors();
+            });
             services.AddDbContext<LootCouncilDbContext>(cfg =>
             {
                 cfg.UseNpgsql(connectionString);

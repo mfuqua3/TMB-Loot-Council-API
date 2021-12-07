@@ -80,7 +80,7 @@ namespace LootCouncil.Domain.Data.Migrations
                         column: x => x.CharacterId,
                         principalTable: "Characters",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CharacterItems_Items_ItemId",
                         column: x => x.ItemId,
@@ -106,7 +106,7 @@ namespace LootCouncil.Domain.Data.Migrations
                         column: x => x.CharacterItemId,
                         principalTable: "CharacterItems",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CharacterItemFilters_ItemFilters_ItemFilterId",
                         column: x => x.ItemFilterId,

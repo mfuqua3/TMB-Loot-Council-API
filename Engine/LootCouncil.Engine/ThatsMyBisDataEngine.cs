@@ -14,26 +14,29 @@ namespace LootCouncil.Engine
 {
     public class ThatsMyBisDataEngine : IThatsMyBisDataEngine
     {
-        private readonly LootCouncilDbContext _dbContext;
         private readonly ILogger<ThatsMyBisDataEngine> _logger;
         private readonly IWowheadClient _wowheadClient;
         private int _checkpoint;
-        private const int CheckpointIncrement = 10;
+        private const int CheckpointIncrement = 5;
         private readonly Dictionary<int, Item> _itemCache = new();
+        private readonly LootCouncilDbContext _importProgressContext;
+        private readonly LootCouncilDbContext _workerContext;
+        private object _importProgressLock = new object();
 
         public ThatsMyBisDataEngine(
-            LootCouncilDbContext dbContext,
+            IDbContextFactory<LootCouncilDbContext> dbContextFactory,
             ILogger<ThatsMyBisDataEngine> logger,
             IWowheadClient wowheadClient)
         {
-            _dbContext = dbContext;
+            _importProgressContext = dbContextFactory.CreateDbContext();
+            _workerContext = dbContextFactory.CreateDbContext();
             _logger = logger;
             _wowheadClient = wowheadClient;
         }
 
         public async Task ImportData(int importId, TmbRosterState tmbRosterState)
         {
-            var import = await _dbContext.Imports.FindAsync(importId);
+            var import = await _importProgressContext.Imports.FindAsync(importId);
             if (import == null)
             {
                 var message = "An unexpected error occurred when importing TMB data. " +
@@ -51,27 +54,34 @@ namespace LootCouncil.Engine
                     return;
                 }
 
+                if (progress >= 100)
+                {
+                    import.Completed = true;
+                    import.Progress = 100;
+                }
                 _checkpoint += CheckpointIncrement;
-                _dbContext.Database.CommitTransaction();
-                _dbContext.Database.BeginTransaction();
+                lock (_importProgressLock)
+                {
+                    _importProgressContext.SaveChanges();
+                }
             }
 
             var importProgress = new Progress<double>();
             importProgress.ProgressChanged += UpdateProgress;
             try
             {
-                await _dbContext.Database.BeginTransactionAsync();
                 await RunImport(tmbRosterState, import.GuildId, importProgress);
-                import.Progress = 100;
-                import.Completed = true;
-                await _dbContext.Database.CommitTransactionAsync();
+                UpdateProgress(this, 100);
+                await _workerContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                await _dbContext.Database.RollbackTransactionAsync();
                 import.Faulted = true;
                 import.Error = ex.Message;
-                await _dbContext.SaveChangesAsync();
+                lock (_importProgressLock)
+                { 
+                    _importProgressContext.SaveChanges();
+                }
                 throw;
             }
             finally
@@ -82,18 +92,20 @@ namespace LootCouncil.Engine
 
         private async Task RunImport(TmbRosterState tmbRosterState, int guildId, IProgress<double> progress)
         {
+            double totalProgress = 0;
             await ClearGuildData(guildId);
-            const int guildDataProgress = 5;
-            progress.Report(guildDataProgress);
+            totalProgress += 5;
+            progress.Report(totalProgress);
             var itemsToImport =
                 tmbRosterState.Characters.Select(x => x.Prios.Count + x.Received.Count + x.Wishlist.Count).Sum();
-            var perItemProgress = ((double)100 - guildDataProgress) / itemsToImport;
+            var perItemProgress = (100 - totalProgress) / itemsToImport;
             foreach (var tmbCharacter in tmbRosterState.Characters)
             {
                 var totalItems = tmbCharacter.Prios.Count + tmbCharacter.Received.Count + tmbCharacter.Wishlist.Count;
                 var character = await ImportCharacter(tmbCharacter, guildId);
                 await ImportItems(tmbCharacter, character);
-                progress.Report(perItemProgress * totalItems);
+                totalProgress += perItemProgress * totalItems;
+                progress.Report(totalProgress);
             }
         }
 
@@ -144,7 +156,7 @@ namespace LootCouncil.Engine
                 return _itemCache[tmbItem.ItemId];
             }
 
-            var item = await _dbContext
+            var item = await _workerContext
                 .Items
                 .AsQueryable()
                 .SingleOrDefaultAsync(x => x.ItemId == tmbItem.ItemId);
@@ -173,7 +185,7 @@ namespace LootCouncil.Engine
                 Quality = wowheadItem.Item.Quality.Text,
                 QualityValue = int.Parse(wowheadItem.Item.Quality.Id)
             };
-            await _dbContext.AddAsync(item);
+            await _workerContext.AddAsync(item);
             _itemCache.Add(tmbItem.ItemId, item);
             return item;
         }
@@ -187,13 +199,13 @@ namespace LootCouncil.Engine
                 Race = tmbCharacter.Race,
                 Name = tmbCharacter.Name
             };
-            var user = await _dbContext.Users
+            var user = await _workerContext.Users
                 .AsQueryable()
                 .FirstOrDefaultAsync(x =>
                     tmbCharacter.DiscordId.HasValue && x.DiscordIdentity.Id == tmbCharacter.DiscordId);
             if (user != null)
             {
-                var guildUser = await _dbContext.GuildUsers
+                var guildUser = await _workerContext.GuildUsers
                     .AsQueryable()
                     .SingleOrDefaultAsync(x => x.GuildId == guildId && x.UserId == user.Id);
                 guildUser ??= new GuildUser
@@ -203,19 +215,19 @@ namespace LootCouncil.Engine
                 character.GuildUser = guildUser;
             }
 
-            await _dbContext.Characters.AddAsync(character);
+            await _workerContext.Characters.AddAsync(character);
             return character;
         }
 
         private async Task ClearGuildData(int guildId)
         {
-            var guildCharacters = _dbContext.Characters
+            var guildCharacters = _workerContext.Characters
                 .AsQueryable()
                 .Include(x => x.CharacterItems)
                 .ThenInclude(x => x.CharacterItemFilters)
                 .Where(x => x.GuildId == guildId);
-            _dbContext.RemoveRange(guildCharacters);
-            await _dbContext.SaveChangesAsync();
+            _workerContext.RemoveRange(guildCharacters);
+            await _workerContext.SaveChangesAsync();
         }
     }
 }
