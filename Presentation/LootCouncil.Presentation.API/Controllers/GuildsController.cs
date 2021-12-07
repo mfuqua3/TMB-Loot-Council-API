@@ -27,7 +27,7 @@ namespace LootCouncil.Presentation.API.Controllers
             return Ok(response);
         }
         [HttpPost("configure")]
-        public async Task<ActionResult<ClaimServerResponse>> ClaimGuild(ClaimDiscordServerRequest request)
+        public async Task<ActionResult<GuildSummaryResponse>> ClaimGuild(ClaimDiscordServerRequest request)
         {
             request.UserId = UserId;
             var response = await _guildService.ClaimDiscordServer(request);

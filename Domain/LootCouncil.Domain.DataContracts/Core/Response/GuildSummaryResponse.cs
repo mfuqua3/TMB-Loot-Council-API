@@ -1,6 +1,6 @@
 ﻿namespace LootCouncil.Domain.DataContracts.Core.Response
 {
-    public class ClaimServerResponse
+    public class GuildSummaryResponse
     {
         public string Id { get; set; }
         public string Name { get; set; }
