@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Utility\LootCouncil.Utility\LootCouncil.Utility.csproj" />
       <ProjectReference Include="..\LootCouncil.Domain.Common\LootCouncil.Domain.Common.csproj" />
     </ItemGroup>
 

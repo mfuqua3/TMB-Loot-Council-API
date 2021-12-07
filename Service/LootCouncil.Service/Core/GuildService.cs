@@ -27,23 +27,40 @@ namespace LootCouncil.Service.Core
             _jwtEngine = jwtEngine;
         }
 
-        async Task<ClaimGuildResponse> IGuildService.ClaimGuild(ClaimGuildRequest request)
+        async Task<ClaimServerResponse> IGuildService.ClaimDiscordServer(ClaimDiscordServerRequest request)
         {
-            var guild = await _dbContext.GuildUsers
-                .Include(u => u.Guild)
-                .ThenInclude(g => g.Configuration)
-                .AsQueryable()
-                .Where(x => x.UserId == request.UserId)
-                .Select(x => x.Guild)
-                .SingleOrDefaultAsync(x => x.Id == request.GuildId);
-            if (guild == null)
+            var discordServer = await _dbContext.DiscordServers.FindAsync(request.ServerId);
+            if (discordServer == null)
             {
                 throw new KeyNotFoundException();
             }
 
-            if (guild.Configuration?.OwnerId != null)
+            var guild = await _dbContext.GuildUsers
+                .Include(u => u.Guild)
+                .ThenInclude(g => g.Configuration)
+                .Include(u => u.Guild)
+                .ThenInclude(g => g.ServerAssociation)
+                .AsQueryable()
+                .Where(x => x.UserId == request.UserId)
+                .Select(x => x.Guild)
+                .SingleOrDefaultAsync(x => x.ServerAssociation.ServerId == request.ServerId);
+            if (guild?.Configuration?.OwnerId != null)
             {
                 throw new InvalidOperationException("That guild has already been claimed.");
+            }
+
+            if (guild == null)
+            {
+                guild = new Guild()
+                {
+                    Name = discordServer.Name,
+                    ServerAssociation = new GuildServerAssociation
+                    {
+                        ServerId = request.ServerId,
+                    },
+                    Configuration = new GuildConfiguration()
+                };
+                await _dbContext.Guilds.AddAsync(guild);
             }
 
             guild.Configuration ??= new GuildConfiguration();
@@ -52,12 +69,12 @@ namespace LootCouncil.Service.Core
             return await _dbContext
                 .Guilds
                 .AsQueryable()
-                .Where(x => x.Id == request.GuildId)
-                .ProjectTo<ClaimGuildResponse>(_configurationProvider)
+                .Where(x => x.ServerAssociation.ServerId == request.ServerId)
+                .ProjectTo<ClaimServerResponse>(_configurationProvider)
                 .SingleAsync();
         }
 
-        public async Task ReleaseGuild(string userId, ulong guildId)
+        public async Task ReleaseGuild(string userId, int guildId)
         {
             var guild = await _dbContext.GuildUsers
                 .Include(u => u.Guild)
@@ -80,20 +97,40 @@ namespace LootCouncil.Service.Core
             await _dbContext.SaveChangesAsync();
         }
 
-        async Task<string> IGuildService.ChangeGuildScope(string userId, ulong id)
+        async Task<string> IGuildService.ChangeGuildScope(string userId, int id)
         {
+            var guild = await _dbContext.Guilds.FindAsync(id);
+            if (guild == null)
+            {
+                throw new KeyNotFoundException("No guild by that ID exists");
+            }
+
             var user = await _dbContext.Users
+                .Include(x => x.DiscordIdentity)
+                .ThenInclude(x => x.ServerMemberships)
                 .Include(x => x.GuildUsers)
                 .ThenInclude(x => x.Guild)
                 .ThenInclude(x => x.Configuration)
                 .SingleAsync(x => x.Id == userId);
+            await _dbContext.Entry(guild).Reference(x => x.ServerAssociation).LoadAsync();
+            var isInServer =
+                user.DiscordIdentity.ServerMemberships.Any(x => x.ServerId == guild.ServerAssociation.ServerId);
+            if (!isInServer)
+            {
+                throw new ArgumentException("The requesting user is not a member of that server.");
+            }
+
             var guildUser = user.GuildUsers.FirstOrDefault(x => x.GuildId == id);
             if (guildUser == null)
             {
-                throw new KeyNotFoundException();
+                guildUser = new GuildUser
+                {
+                    Guild = guild
+                };
+                user.GuildUsers.Add(guildUser);
             }
 
-            if (guildUser.Guild.Configuration == null)
+            if (!guildUser.Guild.ConfigurationId.HasValue)
             {
                 throw new InvalidOperationException("That guild has not been configured.");
             }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace LootCouncil.Domain.Data.Configuration
 {
-    public class GuildConfiguration: IEntityTypeConfiguration<Guild>
+    public class GuildConfiguration : IEntityTypeConfiguration<Guild>
     {
         public void Configure(EntityTypeBuilder<Guild> builder)
         {

@@ -7,7 +7,7 @@ namespace LootCouncil.Domain.Entities
 {
     public class LootCouncilUser : IdentityUser, IUnique<string>, ITracked
     { 
-        public ulong? ActiveGuildId { get; set; }
+        public int? ActiveGuildId { get; set; }
         public Guild ActiveGuild { get; set; }
         public DiscordIdentity DiscordIdentity { get; set; }
         public List<GuildUser> GuildUsers { get; set; }

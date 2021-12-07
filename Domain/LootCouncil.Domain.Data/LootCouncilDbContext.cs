@@ -11,7 +11,16 @@ namespace LootCouncil.Domain.Data
     public class LootCouncilDbContext : IdentityDbContext<LootCouncilUser>
     {
         public DbSet<Guild> Guilds { get; set; }
+        public DbSet<DiscordServerIdentity> DiscordServers { get; set; }
+        public DbSet<DiscordServerMember> DiscordServerMembers { get; set; }
         public DbSet<GuildUser> GuildUsers { get; set; }
+        public DbSet<GuildRole> GuildRoles { get; set; }
+        public DbSet<Character> Characters { get; set; }
+        public DbSet<ItemFilter> ItemFilters { get; set; }
+        public DbSet<CharacterItemFilter> CharacterItemFilters { get; set; }
+        public DbSet<CharacterItem> CharacterItems { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<Import> Imports { get; set; }
         public LootCouncilDbContext(DbContextOptions options): base(options)
         {
             

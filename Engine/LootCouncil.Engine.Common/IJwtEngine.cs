@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using LootCouncil.Domain.Entities;
 
 namespace LootCouncil.Engine
 {

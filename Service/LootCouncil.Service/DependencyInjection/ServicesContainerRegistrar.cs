@@ -1,4 +1,3 @@
-using Discord;
 using Discord.Rest;
 using LootCouncil.Service.Core;
 using LootCouncil.Service.Identity;
@@ -11,6 +10,7 @@ namespace LootCouncil.Service.DependencyInjection
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             return services
+                .AddScoped<IImportService, ImportService>()
                 .AddScoped<IGuildService, GuildService>()
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<IUserDataService, UserDataService>()

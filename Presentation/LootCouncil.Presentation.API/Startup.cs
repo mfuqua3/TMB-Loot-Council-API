@@ -1,23 +1,22 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using AspNet.Security.OAuth.Discord;
+using Hangfire;
+using Hangfire.PostgreSql;
 using LootCouncil.Domain.Data;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Engine.DependencyInjection;
+using LootCouncil.Presentation.API.BackgroundServices;
 using LootCouncil.Presentation.API.Middleware;
 using LootCouncil.Service.DependencyInjection;
 using LootCouncil.Service.Mapping;
 using LootCouncil.Utility.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using LootCouncil.Utility.Converters;
+using LootCouncil.Utility.Wowhead;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -34,18 +33,28 @@ namespace LootCouncil.Presentation.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
             services.Configure<JwtTokenOptions>(_configuration.GetSection("JwtBearer"));
+            services.Configure<RootOptions>(_configuration.GetSection("Root"));
+            services.AddDbContextFactory<LootCouncilDbContext>(cfg =>
+            {
+                cfg.UseNpgsql(connectionString);
+                cfg.EnableDetailedErrors();
+            });
             services.AddDbContext<LootCouncilDbContext>(cfg =>
             {
-                cfg.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+                cfg.UseNpgsql(connectionString);
                 cfg.EnableDetailedErrors();
             });
             services.AddIdentityCore<LootCouncilUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<LootCouncilDbContext>()
                 .AddDefaultTokenProviders();
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(opt =>
+                {
+                    //opt.JsonSerializerOptions.Converters.Add(new NumberToBooleanConverter());
+                });
             services.AddHealthChecks();
             services.AddAuthentication()
                 .AddJwtBearer(opt =>
@@ -77,6 +86,17 @@ namespace LootCouncil.Presentation.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo() {Title = "TMB LootCouncil", Version = "v1"});
             });
+            services.AddHangfire((cfg) =>
+            {
+                cfg.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+                cfg.UseSimpleAssemblyNameTypeSerializer();
+                cfg.UseRecommendedSerializerSettings();
+                cfg.UsePostgreSqlStorage(connectionString);
+                cfg.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
+            });
+            services.AddHangfireServer();
+            services.AddHostedService<IdentitySeeder>();
+            services.AddTransient<IWowheadClient, WowheadClient>();
             services.AddApplicationServices();
             services.AddApplicationEngines();
         }
@@ -102,6 +122,7 @@ namespace LootCouncil.Presentation.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHealthChecks("/health");
+                endpoints.MapHangfireDashboard();
                 endpoints.MapControllers();
             });
         }

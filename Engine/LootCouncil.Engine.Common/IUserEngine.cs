@@ -8,6 +8,6 @@ namespace LootCouncil.Engine
     public interface IUserEngine
     {
         Task<LootCouncilUser> InitializeUserAsync(ISelfUser discordUser);
-        Task UpdateGuildsAsync(string userId, ICollection<IUserGuild> guilds);
+        Task UpdateServersAsync(string userId, ICollection<IUserGuild> servers);
     }
 }
