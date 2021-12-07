@@ -8,11 +8,11 @@ namespace LootCouncil.Service.Mapping
     {
         public GuildProfile()
         {
-            CreateMap<DiscordServerIdentity, DiscordServerResponse>()
-                .ForMember(dto => dto.Configured,
-                    o => o.MapFrom(x => x.GuildAssociation != null && x.GuildAssociation.Guild.Configuration != null));
-            CreateMap<Guild, ClaimServerResponse>()
+            CreateMap<Guild, GuildSummaryResponse>()
                 .ForMember(dto => dto.Owner, o => o.MapFrom(entity => entity.Configuration.Owner));
+            CreateMap<DiscordServerIdentity, DiscordServerResponse>()
+                .ForMember(dto => dto.Guild,
+                    o => o.MapFrom(x => x.GuildAssociation.Guild));
         }
     }
 

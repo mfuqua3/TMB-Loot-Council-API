@@ -4,6 +4,6 @@
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public bool Configured { get; set; }
+        public GuildSummaryResponse Guild { get; set; }
     }
 }

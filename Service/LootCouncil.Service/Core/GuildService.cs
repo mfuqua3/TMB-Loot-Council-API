@@ -27,7 +27,7 @@ namespace LootCouncil.Service.Core
             _jwtEngine = jwtEngine;
         }
 
-        async Task<ClaimServerResponse> IGuildService.ClaimDiscordServer(ClaimDiscordServerRequest request)
+        async Task<GuildSummaryResponse> IGuildService.ClaimDiscordServer(ClaimDiscordServerRequest request)
         {
             var discordServer = await _dbContext.DiscordServers.FindAsync(request.ServerId);
             if (discordServer == null)
@@ -70,7 +70,7 @@ namespace LootCouncil.Service.Core
                 .Guilds
                 .AsQueryable()
                 .Where(x => x.ServerAssociation.ServerId == request.ServerId)
-                .ProjectTo<ClaimServerResponse>(_configurationProvider)
+                .ProjectTo<GuildSummaryResponse>(_configurationProvider)
                 .SingleAsync();
         }
 
