@@ -20,7 +20,7 @@ namespace LootCouncil.Presentation.API.Controllers
         [GuildScoped(AuthorizationConstants.GuildRoles.Owner, AuthorizationConstants.GuildRoles.Admin)]
         public async Task<ActionResult<PreVoteResponse>> CreatePreVote(CreatePreVoteRequest request)
         {
-            ScopeRequest(request);
+            request.GuildId = GuildId;
             var response = await _preVoteService.CreatePreVote(request);
             return Created("", response);
         }

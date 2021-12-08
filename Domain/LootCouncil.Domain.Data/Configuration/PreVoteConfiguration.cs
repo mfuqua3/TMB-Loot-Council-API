@@ -8,11 +8,7 @@ namespace LootCouncil.Domain.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<PreVote> builder)
         {
-            builder.Property(x => x.ExpirationConfigurationId).HasDefaultValue(1);
-            builder.Property(x => x.TransparencyConfigurationId).HasDefaultValue(1);
-            builder.Property(x => x.VoterSelectionConfigurationId).HasDefaultValue(1);
-            builder.Property(x => x.ItemSelectionConfigurationId).HasDefaultValue(1);
-            builder.Property(x => x.ConflictOfInterestConfigurationId).HasDefaultValue(1);
+            builder.Property(x => x.PreVoteConfigurationId).HasDefaultValue(1);
         }
     }
 }

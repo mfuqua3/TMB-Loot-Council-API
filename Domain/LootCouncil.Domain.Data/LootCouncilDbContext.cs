@@ -23,6 +23,7 @@ namespace LootCouncil.Domain.Data
         public DbSet<Import> Imports { get; set; }
         
         public DbSet<PreVote> PreVotes { get; set; }
+        public DbSet<PreVoteConfiguration> PreVoteConfigurations { get; set; }
         public DbSet<ConflictOfInterestConfiguration> ConflictOfInterestConfigurations { get; set; }
         public DbSet<ExpirationConfiguration> ExpirationConfigurations { get; set; }
         public DbSet<ItemSelectionConfiguration> ItemSelectionConfigurations { get; set; }

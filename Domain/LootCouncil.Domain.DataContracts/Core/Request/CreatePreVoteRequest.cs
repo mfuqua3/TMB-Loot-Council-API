@@ -4,10 +4,8 @@ using LootCouncil.Domain.DataContracts.Core.Model;
 
 namespace LootCouncil.Domain.DataContracts.Core.Request
 {
-    public class CreatePreVoteRequest: IUserScoped, IGuildScoped
+    public class CreatePreVoteRequest:  IGuildScoped
     {
-        [JsonIgnore]
-        public string UserId { get; set; }
         [JsonIgnore]
         public int GuildId { get; set; }
         public ExpirationConfigurationModel ExpirationConfiguration { get; set; }

@@ -79,7 +79,10 @@ namespace LootCouncil.Presentation.API
                     opt.SaveTokens = true;
                 })
                 .AddExternalCookie();
-            services.AddAutoMapper(cfg => cfg.AddMaps(typeof(GuildProfile).Assembly));
+            services.AddAutoMapper(cfg =>
+                cfg.AddMaps(
+                    typeof(ServicesContainerRegistrar).Assembly, 
+                    typeof(EnginesContainerRegistrar).Assembly));
             services.AddCustomMiddleware();
             services.AddAuthorization();
             services.AddSwaggerGen(c =>
