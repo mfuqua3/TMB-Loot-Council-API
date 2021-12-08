@@ -36,7 +36,11 @@ namespace LootCouncil.Engine
 
         public async Task ImportData(int importId, TmbRosterState tmbRosterState)
         {
-            var import = await _importProgressContext.Imports.FindAsync(importId);
+            Import import;
+            lock (_importProgressLock)
+            {
+                import =  _importProgressContext.Imports.Find(importId);
+            }
             if (import == null)
             {
                 var message = "An unexpected error occurred when importing TMB data. " +
@@ -223,8 +227,6 @@ namespace LootCouncil.Engine
         {
             var guildCharacters = _workerContext.Characters
                 .AsQueryable()
-                .Include(x => x.CharacterItems)
-                .ThenInclude(x => x.CharacterItemFilters)
                 .Where(x => x.GuildId == guildId);
             _workerContext.RemoveRange(guildCharacters);
             await _workerContext.SaveChangesAsync();
