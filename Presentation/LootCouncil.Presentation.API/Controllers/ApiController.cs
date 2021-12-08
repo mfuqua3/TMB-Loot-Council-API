@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using LootCouncil.Domain.Data;
 using LootCouncil.Utility.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -13,5 +14,12 @@ namespace LootCouncil.Presentation.API.Controllers
     {
         protected string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
         protected int GuildId => int.Parse(User.FindFirstValue(AuthorizationConstants.Claims.GuildId));
+
+        protected void ScopeRequest<T>(T request)
+        where T:IGuildScoped, IUserScoped
+        {
+            request.GuildId = GuildId;
+            request.UserId = UserId;
+        } 
     }
 }
