@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace LootCouncil.Domain.Data.Migrations
 {
     [DbContext(typeof(LootCouncilDbContext))]
@@ -15,25 +17,33 @@ namespace LootCouncil.Domain.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.11")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("LootCouncil.Domain.Entities.Character", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Class")
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("GuildId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("GuildUserId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -50,6 +60,8 @@ namespace LootCouncil.Domain.Data.Migrations
 
                     b.HasIndex("GuildUserId");
 
+                    b.HasIndex("IsDeleted");
+
                     b.ToTable("Characters");
                 });
 
@@ -57,17 +69,18 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CharacterId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("Date")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
@@ -79,7 +92,7 @@ namespace LootCouncil.Domain.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -94,8 +107,9 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CharacterItemId")
                         .HasColumnType("integer");
@@ -112,6 +126,41 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.ToTable("CharacterItemFilters");
                 });
 
+            modelBuilder.Entity("LootCouncil.Domain.Entities.ConflictOfInterestConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AllowCommenting")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AllowObjecting")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AllowSelfVoting")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AllowVoting")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConflictOfInterestConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AllowCommenting = true,
+                            AllowObjecting = false,
+                            AllowSelfVoting = false,
+                            AllowVoting = false
+                        });
+                });
+
             modelBuilder.Entity("LootCouncil.Domain.Entities.DiscordIdentity", b =>
                 {
                     b.Property<decimal>("Id")
@@ -119,13 +168,13 @@ namespace LootCouncil.Domain.Data.Migrations
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Discriminator")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -160,8 +209,9 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("MemberId")
                         .HasColumnType("numeric(20,0)");
@@ -178,24 +228,60 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.ToTable("DiscordServerMembers");
                 });
 
+            modelBuilder.Entity("LootCouncil.Domain.Entities.ExpirationConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ExpirationTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LockCommentsTteMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LockObjectionsTteMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LockVotesTteMinutes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExpirationConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ExpirationTime = new DateTime(9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Unspecified).AddTicks(9999),
+                            LockCommentsTteMinutes = 0,
+                            LockObjectionsTteMinutes = 0,
+                            LockVotesTteMinutes = 0
+                        });
+                });
+
             modelBuilder.Entity("LootCouncil.Domain.Entities.Guild", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("ConfigurationId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -209,17 +295,18 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("OwnerId")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -232,8 +319,9 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -255,12 +343,44 @@ namespace LootCouncil.Domain.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LootCouncil.Domain.Entities.GuildRoleVoterConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GuildRoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VoterSelectionConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildRoleId");
+
+                    b.HasIndex("VoterSelectionConfigurationId");
+
+                    b.ToTable("GuildRoleVoterConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            GuildRoleId = 1,
+                            VoterSelectionConfigurationId = 1
+                        });
+                });
+
             modelBuilder.Entity("LootCouncil.Domain.Entities.GuildServerAssociation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GuildId")
                         .HasColumnType("integer");
@@ -283,8 +403,9 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GuildId")
                         .HasColumnType("integer");
@@ -308,18 +429,48 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.ToTable("GuildUsers");
                 });
 
+            modelBuilder.Entity("LootCouncil.Domain.Entities.GuildUserVoterConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Eligible")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Fixed")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("GuildUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VoterSelectionConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildUserId");
+
+                    b.HasIndex("VoterSelectionConfigurationId");
+
+                    b.ToTable("GuildUserVoterConfigurations");
+                });
+
             modelBuilder.Entity("LootCouncil.Domain.Entities.Import", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Completed")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Error")
                         .HasColumnType("text");
@@ -334,7 +485,7 @@ namespace LootCouncil.Domain.Data.Migrations
                         .HasColumnType("double precision");
 
                     b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
@@ -352,8 +503,9 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Class")
                         .HasColumnType("integer");
@@ -394,8 +546,9 @@ namespace LootCouncil.Domain.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -409,6 +562,29 @@ namespace LootCouncil.Domain.Data.Migrations
                         {
                             Id = 1,
                             Name = "Offspec"
+                        });
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.ItemSelectionConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("SelectAll")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ItemSelectionConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            SelectAll = true
                         });
                 });
 
@@ -428,7 +604,7 @@ namespace LootCouncil.Domain.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -467,7 +643,7 @@ namespace LootCouncil.Domain.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -484,7 +660,426 @@ namespace LootCouncil.Domain.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("GuildId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteConfigurationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildId");
+
+                    b.HasIndex("PreVoteConfigurationId");
+
+                    b.ToTable("PreVotes");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CharacterId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteItemId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("PreVoteItemId");
+
+                    b.ToTable("PreVoteCharacters");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacterConsideration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteCharacterId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreVoteCharacterId");
+
+                    b.ToTable("PreVoteCharacterConsiderations");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ConflictOfInterestConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ExpirationConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemSelectionConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TransparencyConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VoterSelectionConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConflictOfInterestConfigurationId");
+
+                    b.HasIndex("ExpirationConfigurationId");
+
+                    b.HasIndex("ItemSelectionConfigurationId");
+
+                    b.HasIndex("TransparencyConfigurationId");
+
+                    b.HasIndex("VoterSelectionConfigurationId");
+
+                    b.ToTable("PreVoteConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConflictOfInterestConfigurationId = 1,
+                            ExpirationConfigurationId = 1,
+                            ItemSelectionConfigurationId = 1,
+                            TransparencyConfigurationId = 1,
+                            VoterSelectionConfigurationId = 1
+                        });
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("PreVoteId");
+
+                    b.ToTable("PreVoteItems");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PreVoteItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteVoterId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreVoteItemId");
+
+                    b.HasIndex("PreVoteVoterId");
+
+                    b.ToTable("PreVoteItemAssignments");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PreVoteItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteVoterId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreVoteItemId");
+
+                    b.HasIndex("PreVoteVoterId");
+
+                    b.ToTable("PreVoteItemComments");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemObjection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PreVoteItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteVoterId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreVoteItemId");
+
+                    b.HasIndex("PreVoteVoterId");
+
+                    b.ToTable("PreVoteItemObjections");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemObjectionResponse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PreVoteItemObjectionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteVoterId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("ResponseRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreVoteItemObjectionId");
+
+                    b.HasIndex("PreVoteVoterId");
+
+                    b.ToTable("PreVoteItemObjectionResponses");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemVote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteCharacterId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteVoterId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PreVoteCharacterId");
+
+                    b.HasIndex("PreVoteItemId");
+
+                    b.HasIndex("PreVoteVoterId");
+
+                    b.ToTable("PreVoteItemVotes");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteVoter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GuildUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PreVoteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuildUserId");
+
+                    b.HasIndex("PreVoteId");
+
+                    b.ToTable("PreVoteVoters");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.TransparencyConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("VoteVisibilityId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VoteVisibilityId");
+
+                    b.ToTable("TransparencyConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            VoteVisibilityId = 1
+                        });
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.VoterSelectionConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MaximumVotersPerItem")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinimumVotersPerItem")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Randomize")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VoterSelectionConfigurations");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            MaximumVotersPerItem = 5,
+                            MinimumVotersPerItem = 3,
+                            Randomize = false
+                        });
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.VoteVisibility", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AllowAllEligibleVoters")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AllowGuild")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("VoteSubmissionRequirement")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VoteVisibilities");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AllowAllEligibleVoters = true,
+                            AllowGuild = false,
+                            VoteSubmissionRequirement = 1
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -510,15 +1105,16 @@ namespace LootCouncil.Domain.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles");
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -534,15 +1130,16 @@ namespace LootCouncil.Domain.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims");
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
@@ -558,7 +1155,7 @@ namespace LootCouncil.Domain.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims");
+                    b.ToTable("AspNetUserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -580,7 +1177,7 @@ namespace LootCouncil.Domain.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins");
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -595,7 +1192,7 @@ namespace LootCouncil.Domain.Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles");
+                    b.ToTable("AspNetUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -614,7 +1211,7 @@ namespace LootCouncil.Domain.Data.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens");
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("LootCouncil.Domain.Entities.Character", b =>
@@ -723,6 +1320,25 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("LootCouncil.Domain.Entities.GuildRoleVoterConfiguration", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.GuildRole", "GuildRole")
+                        .WithMany()
+                        .HasForeignKey("GuildRoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.VoterSelectionConfiguration", "VoterSelectionConfiguration")
+                        .WithMany("EligibleRoleConfigurations")
+                        .HasForeignKey("VoterSelectionConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GuildRole");
+
+                    b.Navigation("VoterSelectionConfiguration");
+                });
+
             modelBuilder.Entity("LootCouncil.Domain.Entities.GuildServerAssociation", b =>
                 {
                     b.HasOne("LootCouncil.Domain.Entities.Guild", "Guild")
@@ -768,6 +1384,25 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("LootCouncil.Domain.Entities.GuildUserVoterConfiguration", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.GuildUser", "GuildUser")
+                        .WithMany()
+                        .HasForeignKey("GuildUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.VoterSelectionConfiguration", "VoterSelectionConfiguration")
+                        .WithMany("VoterConfigurations")
+                        .HasForeignKey("VoterSelectionConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GuildUser");
+
+                    b.Navigation("VoterSelectionConfiguration");
+                });
+
             modelBuilder.Entity("LootCouncil.Domain.Entities.Import", b =>
                 {
                     b.HasOne("LootCouncil.Domain.Entities.Guild", "Guild")
@@ -794,6 +1429,250 @@ namespace LootCouncil.Domain.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ActiveGuild");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVote", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.Guild", "Guild")
+                        .WithMany()
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteConfiguration", "PreVoteConfiguration")
+                        .WithMany()
+                        .HasForeignKey("PreVoteConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Guild");
+
+                    b.Navigation("PreVoteConfiguration");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacter", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItem", "PreVoteItem")
+                        .WithMany("EligibleCharacters")
+                        .HasForeignKey("PreVoteItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("PreVoteItem");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacterConsideration", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteCharacter", "PreVoteCharacter")
+                        .WithMany("CharacterConsiderations")
+                        .HasForeignKey("PreVoteCharacterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PreVoteCharacter");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteConfiguration", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.ConflictOfInterestConfiguration", "ConflictOfInterestConfiguration")
+                        .WithMany()
+                        .HasForeignKey("ConflictOfInterestConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.ExpirationConfiguration", "ExpirationConfiguration")
+                        .WithMany()
+                        .HasForeignKey("ExpirationConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.ItemSelectionConfiguration", "ItemSelectionConfiguration")
+                        .WithMany()
+                        .HasForeignKey("ItemSelectionConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.TransparencyConfiguration", "TransparencyConfiguration")
+                        .WithMany()
+                        .HasForeignKey("TransparencyConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.VoterSelectionConfiguration", "VoterSelectionConfiguration")
+                        .WithMany()
+                        .HasForeignKey("VoterSelectionConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ConflictOfInterestConfiguration");
+
+                    b.Navigation("ExpirationConfiguration");
+
+                    b.Navigation("ItemSelectionConfiguration");
+
+                    b.Navigation("TransparencyConfiguration");
+
+                    b.Navigation("VoterSelectionConfiguration");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItem", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVote", "PreVote")
+                        .WithMany("Items")
+                        .HasForeignKey("PreVoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("PreVote");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemAssignment", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItem", "PreVoteItem")
+                        .WithMany("VoterAssignments")
+                        .HasForeignKey("PreVoteItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteVoter", "PreVoteVoter")
+                        .WithMany("ItemAssignments")
+                        .HasForeignKey("PreVoteVoterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PreVoteItem");
+
+                    b.Navigation("PreVoteVoter");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemComment", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItem", "PreVoteItem")
+                        .WithMany("Comments")
+                        .HasForeignKey("PreVoteItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteVoter", "PreVoteVoter")
+                        .WithMany("Comments")
+                        .HasForeignKey("PreVoteVoterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PreVoteItem");
+
+                    b.Navigation("PreVoteVoter");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemObjection", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItem", "PreVoteItem")
+                        .WithMany("Objections")
+                        .HasForeignKey("PreVoteItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteVoter", "PreVoteVoter")
+                        .WithMany("Objections")
+                        .HasForeignKey("PreVoteVoterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PreVoteItem");
+
+                    b.Navigation("PreVoteVoter");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemObjectionResponse", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItemObjection", "PreVoteItemObjection")
+                        .WithMany("Responses")
+                        .HasForeignKey("PreVoteItemObjectionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteVoter", "PreVoteVoter")
+                        .WithMany()
+                        .HasForeignKey("PreVoteVoterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PreVoteItemObjection");
+
+                    b.Navigation("PreVoteVoter");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemVote", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteCharacter", "PreVoteCharacter")
+                        .WithMany()
+                        .HasForeignKey("PreVoteCharacterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItem", "PreVoteItem")
+                        .WithMany("Votes")
+                        .HasForeignKey("PreVoteItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteVoter", "PreVoteVoter")
+                        .WithMany("Votes")
+                        .HasForeignKey("PreVoteVoterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PreVoteCharacter");
+
+                    b.Navigation("PreVoteItem");
+
+                    b.Navigation("PreVoteVoter");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteVoter", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.GuildUser", "GuildUser")
+                        .WithMany()
+                        .HasForeignKey("GuildUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVote", "PreVote")
+                        .WithMany("Voters")
+                        .HasForeignKey("PreVoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GuildUser");
+
+                    b.Navigation("PreVote");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.TransparencyConfiguration", b =>
+                {
+                    b.HasOne("LootCouncil.Domain.Entities.VoteVisibility", "VoteVisibility")
+                        .WithMany()
+                        .HasForeignKey("VoteVisibilityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("VoteVisibility");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -895,6 +1774,54 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Navigation("DiscordIdentity");
 
                     b.Navigation("GuildUsers");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVote", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Voters");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacter", b =>
+                {
+                    b.Navigation("CharacterConsiderations");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItem", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("EligibleCharacters");
+
+                    b.Navigation("Objections");
+
+                    b.Navigation("VoterAssignments");
+
+                    b.Navigation("Votes");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemObjection", b =>
+                {
+                    b.Navigation("Responses");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteVoter", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("ItemAssignments");
+
+                    b.Navigation("Objections");
+
+                    b.Navigation("Votes");
+                });
+
+            modelBuilder.Entity("LootCouncil.Domain.Entities.VoterSelectionConfiguration", b =>
+                {
+                    b.Navigation("EligibleRoleConfigurations");
+
+                    b.Navigation("VoterConfigurations");
                 });
 #pragma warning restore 612, 618
         }

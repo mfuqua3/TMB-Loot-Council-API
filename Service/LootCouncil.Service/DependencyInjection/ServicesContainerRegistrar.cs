@@ -14,6 +14,7 @@ namespace LootCouncil.Service.DependencyInjection
                 .AddScoped<IGuildService, GuildService>()
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<IUserDataService, UserDataService>()
+                .AddScoped<IPreVoteService, PreVoteService>()
                 .AddTransient<DiscordRestClient>();
             
         }

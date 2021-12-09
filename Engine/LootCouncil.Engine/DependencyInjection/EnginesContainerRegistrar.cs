@@ -8,7 +8,9 @@ namespace LootCouncil.Engine.DependencyInjection
         {
             return services.AddScoped<IJwtEngine, JwtEngine>()
                 .AddScoped<IUserEngine, UserEngine>()
-                .AddScoped<IThatsMyBisDataEngine, ThatsMyBisDataEngine>();
+                .AddScoped<IThatsMyBisDataEngine, ThatsMyBisDataEngine>()
+                .AddScoped<IPreVoteConfigurationEngine, PreVoteConfigurationEngine>()
+                .AddScoped<IPreVoteGenerationEngine, PreVoteGenerationEngine>();
         }
     }
 }

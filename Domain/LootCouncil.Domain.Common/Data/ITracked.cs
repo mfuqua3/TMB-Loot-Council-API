@@ -7,4 +7,5 @@ namespace LootCouncil.Domain.Data
         DateTime Created { get; set; }
         DateTime? Updated { get; set; }
     }
+
 }
