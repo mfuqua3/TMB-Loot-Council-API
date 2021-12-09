@@ -3,6 +3,7 @@ using System;
 using LootCouncil.Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LootCouncil.Domain.Data.Migrations
 {
     [DbContext(typeof(LootCouncilDbContext))]
-    partial class LootCouncilDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211209183011_PreVote_Items")]
+    partial class PreVote_Items
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,17 +35,11 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Property<string>("Class")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("GuildId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("GuildUserId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -59,8 +55,6 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.HasIndex("GuildId");
 
                     b.HasIndex("GuildUserId");
-
-                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Characters");
                 });
@@ -717,30 +711,6 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.ToTable("PreVoteCharacters");
                 });
 
-            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacterConsideration", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PreVoteCharacterId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PreVoteCharacterId");
-
-                    b.ToTable("PreVoteCharacterConsiderations");
-                });
-
             modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteConfiguration", b =>
                 {
                     b.Property<int>("Id")
@@ -801,39 +771,11 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PreVoteId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("PreVoteId");
-
                     b.ToTable("PreVoteItems");
-                });
-
-            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemAssignment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PreVoteItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PreVoteVoterId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PreVoteItemId");
-
-                    b.HasIndex("PreVoteVoterId");
-
-                    b.ToTable("PreVoteItemAssignments");
                 });
 
             modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemComment", b =>
@@ -986,11 +928,16 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Property<int>("PreVoteId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("PreVoteItemId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GuildUserId");
 
                     b.HasIndex("PreVoteId");
+
+                    b.HasIndex("PreVoteItemId");
 
                     b.ToTable("PreVoteVoters");
                 });
@@ -1469,17 +1416,6 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Navigation("PreVoteItem");
                 });
 
-            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacterConsideration", b =>
-                {
-                    b.HasOne("LootCouncil.Domain.Entities.PreVoteCharacter", "PreVoteCharacter")
-                        .WithMany("CharacterConsiderations")
-                        .HasForeignKey("PreVoteCharacterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("PreVoteCharacter");
-                });
-
             modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteConfiguration", b =>
                 {
                     b.HasOne("LootCouncil.Domain.Entities.ConflictOfInterestConfiguration", "ConflictOfInterestConfiguration")
@@ -1531,34 +1467,7 @@ namespace LootCouncil.Domain.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("LootCouncil.Domain.Entities.PreVote", "PreVote")
-                        .WithMany("Items")
-                        .HasForeignKey("PreVoteId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Item");
-
-                    b.Navigation("PreVote");
-                });
-
-            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemAssignment", b =>
-                {
-                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItem", "PreVoteItem")
-                        .WithMany("VoterAssignments")
-                        .HasForeignKey("PreVoteItemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("LootCouncil.Domain.Entities.PreVoteVoter", "PreVoteVoter")
-                        .WithMany("ItemAssignments")
-                        .HasForeignKey("PreVoteVoterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("PreVoteItem");
-
-                    b.Navigation("PreVoteVoter");
                 });
 
             modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItemComment", b =>
@@ -1658,6 +1567,11 @@ namespace LootCouncil.Domain.Data.Migrations
                         .HasForeignKey("PreVoteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("LootCouncil.Domain.Entities.PreVoteItem", null)
+                        .WithMany("Voters")
+                        .HasForeignKey("PreVoteItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("GuildUser");
 
@@ -1778,14 +1692,7 @@ namespace LootCouncil.Domain.Data.Migrations
 
             modelBuilder.Entity("LootCouncil.Domain.Entities.PreVote", b =>
                 {
-                    b.Navigation("Items");
-
                     b.Navigation("Voters");
-                });
-
-            modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteCharacter", b =>
-                {
-                    b.Navigation("CharacterConsiderations");
                 });
 
             modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteItem", b =>
@@ -1796,7 +1703,7 @@ namespace LootCouncil.Domain.Data.Migrations
 
                     b.Navigation("Objections");
 
-                    b.Navigation("VoterAssignments");
+                    b.Navigation("Voters");
 
                     b.Navigation("Votes");
                 });
@@ -1809,8 +1716,6 @@ namespace LootCouncil.Domain.Data.Migrations
             modelBuilder.Entity("LootCouncil.Domain.Entities.PreVoteVoter", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("ItemAssignments");
 
                     b.Navigation("Objections");
 

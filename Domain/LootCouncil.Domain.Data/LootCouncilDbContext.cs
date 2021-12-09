@@ -31,6 +31,16 @@ namespace LootCouncil.Domain.Data
         public DbSet<VoterSelectionConfiguration> VoterSelectionConfigurations { get; set; }
         public DbSet<VoteVisibility> VoteVisibilities { get; set; }
         
+        public DbSet<PreVoteItem> PreVoteItems { get; set; }
+        public DbSet<PreVoteItemAssignment> PreVoteItemAssignments { get; set; }
+        public DbSet<PreVoteVoter> PreVoteVoters { get; set; }
+        public DbSet<PreVoteItemObjection> PreVoteItemObjections { get; set; }
+        public DbSet<PreVoteItemObjectionResponse> PreVoteItemObjectionResponses { get; set; }
+        public DbSet<PreVoteItemComment> PreVoteItemComments { get; set; }
+        public DbSet<PreVoteItemVote> PreVoteItemVotes { get; set; }
+        public DbSet<PreVoteCharacter> PreVoteCharacters { get; set; }
+        public DbSet<PreVoteCharacterConsideration> PreVoteCharacterConsiderations { get; set; }
+
         public DbSet<GuildRoleVoterConfiguration> GuildRoleVoterConfigurations { get; set; }
         public DbSet<GuildUserVoterConfiguration> GuildUserVoterConfigurations { get; set; }
         public LootCouncilDbContext(DbContextOptions options): base(options)

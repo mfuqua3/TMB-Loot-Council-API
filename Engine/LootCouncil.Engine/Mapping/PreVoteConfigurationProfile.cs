@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
 using LootCouncil.Domain.DataContracts.Core.Model;
 using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.Entities;

@@ -15,6 +15,7 @@
       <PackageReference Include="Hangfire.Core" Version="1.7.27" />
       <PackageReference Include="AutoMapper.Collection.EntityFramework" Version="7.0.1" />
       <PackageReference Include="Discord.Net" Version="2.4.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
     </ItemGroup>
 
 </Project>

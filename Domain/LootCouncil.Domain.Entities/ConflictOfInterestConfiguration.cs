@@ -9,7 +9,7 @@ namespace LootCouncil.Domain.Entities
         /// </summary>
         public bool AllowSelfVoting { get; set; }
         /// <summary>
-        /// Can vote at all
+        /// Can vote at all for an item they are being considered for
         /// </summary>
         public bool AllowVoting { get; set; }
         /// <summary>

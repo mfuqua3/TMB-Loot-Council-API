@@ -3,6 +3,7 @@ using System;
 using LootCouncil.Domain.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LootCouncil.Domain.Data.Migrations
 {
     [DbContext(typeof(LootCouncilDbContext))]
-    partial class LootCouncilDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211209201333_PreVote_Item_Assignments")]
+    partial class PreVote_Item_Assignments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,17 +35,11 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.Property<string>("Class")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("GuildId")
                         .HasColumnType("integer");
 
                     b.Property<int?>("GuildUserId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -59,8 +55,6 @@ namespace LootCouncil.Domain.Data.Migrations
                     b.HasIndex("GuildId");
 
                     b.HasIndex("GuildUserId");
-
-                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Characters");
                 });

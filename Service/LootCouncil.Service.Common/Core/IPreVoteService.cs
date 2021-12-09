@@ -6,6 +6,6 @@ namespace LootCouncil.Service.Core
 {
     public interface IPreVoteService
     {
-        Task<PreVoteResponse> CreatePreVote(CreatePreVoteRequest request);
+        Task<PreVoteSummary> CreatePreVote(CreatePreVoteRequest request);
     }
 }
