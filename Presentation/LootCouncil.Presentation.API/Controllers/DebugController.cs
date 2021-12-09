@@ -4,6 +4,7 @@ using LootCouncil.Domain.Data;
 using LootCouncil.Engine;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LootCouncil.Presentation.API.Controllers
 {
@@ -22,7 +23,7 @@ namespace LootCouncil.Presentation.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Token()
         {
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == "fuqua.matt@gmail.com");
+            var user = await _db.Users.FirstAsync(x => x.Email == "fuqua.matt@gmail.com");
             var token = await _jwtEngine.GenerateToken(user.Id);
             return Ok(token);
         }

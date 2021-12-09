@@ -1,9 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using LootCouncil.Domain.Data;
+﻿using System.Threading.Tasks;
 using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.DataContracts.Core.Response;
-using LootCouncil.Domain.Entities;
 using LootCouncil.Engine;
 
 namespace LootCouncil.Service.Core
@@ -23,7 +20,7 @@ namespace LootCouncil.Service.Core
         public async Task<PreVoteResponse> CreatePreVote(CreatePreVoteRequest request)
         {
             var configurationId = await _preVoteConfigurationEngine.AddOrGetConfiguration(request);
-            var preVote = await _preVoteGenerationEngine.GeneratePreVote(configurationId);
+            var preVote = await _preVoteGenerationEngine.GeneratePreVote(configurationId, request.GuildId);
             return preVote;
         }
     }

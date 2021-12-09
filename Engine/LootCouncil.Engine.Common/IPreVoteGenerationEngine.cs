@@ -5,6 +5,6 @@ namespace LootCouncil.Engine
 {
     public interface IPreVoteGenerationEngine
     {
-        Task<PreVoteResponse> GeneratePreVote(int configurationId);
+        Task<PreVoteResponse> GeneratePreVote(int configurationId, int guildId);
     }
 }
