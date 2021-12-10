@@ -39,8 +39,9 @@ namespace LootCouncil.Engine
             Import import;
             lock (_importProgressLock)
             {
-                import =  _importProgressContext.Imports.Find(importId);
+                import = _importProgressContext.Imports.Find(importId);
             }
+
             if (import == null)
             {
                 var message = "An unexpected error occurred when importing TMB data. " +
@@ -63,6 +64,7 @@ namespace LootCouncil.Engine
                     import.Completed = true;
                     import.Progress = 100;
                 }
+
                 _checkpoint += CheckpointIncrement;
                 lock (_importProgressLock)
                 {
@@ -83,9 +85,10 @@ namespace LootCouncil.Engine
                 import.Faulted = true;
                 import.Error = ex.Message;
                 lock (_importProgressLock)
-                { 
+                {
                     _importProgressContext.SaveChanges();
                 }
+
                 throw;
             }
             finally
@@ -126,6 +129,7 @@ namespace LootCouncil.Engine
                     Date = wishlistItem.Details.UpdatedAt ?? wishlistItem.Details.CreatedAt,
                     Order = wishlistItem.Details.Order,
                 };
+                characterItem.Date = DateTime.SpecifyKind(characterItem.Date.Value, DateTimeKind.Utc);
                 character.CharacterItems.Add(characterItem);
             }
 
@@ -138,6 +142,8 @@ namespace LootCouncil.Engine
                     Type = DataConstants.ItemTypes.Received,
                     Date = wishlistItem.Details.ReceivedAt
                 };
+                if (characterItem.Date != null)
+                    characterItem.Date = DateTime.SpecifyKind(characterItem.Date.Value, DateTimeKind.Utc);
                 character.CharacterItems.Add(characterItem);
             }
 
