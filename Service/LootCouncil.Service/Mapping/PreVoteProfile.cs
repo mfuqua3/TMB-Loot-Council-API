@@ -32,5 +32,7 @@ public class PreVoteProfile : Profile
         CreateMap<PreVoteCharacter, EligibleCharacterModel>()
             .ForMember(x => x.Name, o => o.MapFrom(x => x.Character.Name));
         CreateMap<PreVoteCharacterConsideration, CharacterConsiderationModel>();
+
+        CreateMap<PreVoteConfiguration, PreVoteConfigurationModel>();
     }
 }
