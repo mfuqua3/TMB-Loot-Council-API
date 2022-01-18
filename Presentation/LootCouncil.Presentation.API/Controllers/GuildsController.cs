@@ -4,6 +4,7 @@ using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.DataContracts.Core.Response;
 using LootCouncil.Domain.DataContracts.Identity.Model;
 using LootCouncil.Service.Core;
+using LootCouncil.Utility.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,13 @@ namespace LootCouncil.Presentation.API.Controllers
             _userDataService = userDataService;
             _guildService = guildService;
         }
-
+        [HttpGet("users")]
+        [GuildScoped]
+        public async Task<ActionResult<List<GuildUserResponse>>> GetGuildUsers()
+        {
+            var response = await _guildService.GetGuildUsers(GuildId);
+            return Ok(response);
+        }
         [HttpGet]
         public async Task<ActionResult<List<DiscordServerResponse>>> GetUserServers()
         {

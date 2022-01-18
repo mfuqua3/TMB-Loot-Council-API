@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord;
+using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.Entities;
 
 namespace LootCouncil.Engine
 {
     public interface IUserEngine
     {
-        Task<LootCouncilUser> InitializeUserAsync(ISelfUser discordUser);
-        Task UpdateServersAsync(string userId, ICollection<IUserGuild> servers);
+        Task<LootCouncilUser> InitializeUserAsync(InitializeUserRequest discordUser);
+        Task UpdateServersAsync(UpdateServersRequest request);
     }
 }

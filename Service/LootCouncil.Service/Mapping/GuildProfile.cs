@@ -15,12 +15,4 @@ namespace LootCouncil.Service.Mapping
                     o => o.MapFrom(x => x.GuildAssociation.Guild));
         }
     }
-
-    public class UserProfile : Profile
-    {
-        public UserProfile()
-        {
-            CreateMap<LootCouncilUser, UserSummaryResponse>();
-        }
-    }
 }

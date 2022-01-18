@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using LootCouncil.Domain;
 using LootCouncil.Domain.Data;
-using LootCouncil.Domain.DataContracts.Core.Model;
-using LootCouncil.Domain.DataContracts.Core.Response;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Utility.Extensions;
 using Microsoft.EntityFrameworkCore;

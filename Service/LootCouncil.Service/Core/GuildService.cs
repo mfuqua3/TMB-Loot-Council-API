@@ -97,6 +97,14 @@ namespace LootCouncil.Service.Core
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<List<GuildUserResponse>> GetGuildUsers(int guildId)
+        {
+            return await _dbContext.GuildUsers
+                .Where(x => x.GuildId == guildId)
+                .ProjectTo<GuildUserResponse>(_configurationProvider)
+                .ToListAsync();
+        }
+
         async Task<string> IGuildService.ChangeGuildScope(string userId, int id)
         {
             var guild = await _dbContext.Guilds.FindAsync(id);

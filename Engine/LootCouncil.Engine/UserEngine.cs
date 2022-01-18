@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using LootCouncil.Domain.Data;
+using LootCouncil.Domain.DataContracts.Core.Request;
 using LootCouncil.Domain.Entities;
 using LootCouncil.Utility.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +22,7 @@ namespace LootCouncil.Engine
             _userManager = userManager;
         }
 
-        public async Task<LootCouncilUser> InitializeUserAsync(ISelfUser discordUser)
+        public async Task<LootCouncilUser> InitializeUserAsync(InitializeUserRequest discordUser)
         {
             var newUser = new LootCouncilUser()
             {
@@ -29,26 +30,34 @@ namespace LootCouncil.Engine
                 UserName = discordUser.Username,
                 DiscordIdentity = new DiscordIdentity()
                 {
-                    Id = discordUser.Id,
+                    Id = discordUser.DiscordUid,
                     UserName = discordUser.Username,
-                    Discriminator = discordUser.Discriminator
+                    Discriminator = discordUser.DiscordDiscriminator
                 },
                 GuildUsers = new List<GuildUser>()
             };
-            await _userManager.CreateAsync(newUser);
-            await _userManager.AddToRoleAsync(newUser, AuthorizationConstants.Roles.Basic);
+            var result = await _userManager.CreateAsync(newUser);
+            if(result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(newUser, AuthorizationConstants.Roles.Basic);
+            }
+            else
+            {
+                return null;
+            }
             return newUser;
         }
 
-        public async Task UpdateServersAsync(string userId, ICollection<IUserGuild> servers)
+        public async Task UpdateServersAsync(UpdateServersRequest request)
         {
             var userDiscordIdentity = await _dbContext.Users
                 .AsQueryable()
                 .Include(x=>x.DiscordIdentity)
                 .ThenInclude(x=>x.ServerMemberships)
-                .Where(x => x.Id == userId)
+                .Where(x => x.Id == request.UserId)
                 .Select(x => x.DiscordIdentity)
                 .SingleAsync();
+            var servers = request.Servers;
             var sourceGuildIds = servers.Select(g => g.Id).ToArray();
             var destinationGuildIds = userDiscordIdentity.ServerMemberships.Select(x => x.ServerId);
             var toRemove = userDiscordIdentity.ServerMemberships.Where(x => !sourceGuildIds.Contains(x.ServerId));
@@ -68,14 +77,14 @@ namespace LootCouncil.Engine
             await _dbContext.SaveChangesAsync();
         }
 
-        private async Task<DiscordServerIdentity> AddOrGetServer(IUserGuild guild)
+        private async Task<DiscordServerIdentity> AddOrGetServer(ServerModel server)
         {
-            var existingServer = await _dbContext.DiscordServers.FindAsync(guild.Id);
+            var existingServer = await _dbContext.DiscordServers.FindAsync(server.Id);
             if (existingServer != null) return existingServer;
             var newServer = new DiscordServerIdentity()
             {
-                Name = guild.Name,
-                Id = guild.Id
+                Name = server.Name,
+                Id = server.Id
             };
             await _dbContext.DiscordServers.AddAsync(newServer);
             await _dbContext.SaveChangesAsync();
